@@ -1,0 +1,29 @@
+program HelloWorld;
+    const
+        a = 3;
+        b = 2.;
+        c = 3.4;
+        d = true;
+    var
+        e, f, g : integer;
+        h, i : real;
+        bool : boolean;
+        
+    procedure ProcedureWithParams(a, b, c : integer; d, e, f : real);
+        const
+            m = 4;
+        begin
+        end;
+
+    begin 
+        bool := true;
+        
+        e := b + a*34;
+        
+        while ( e mod 3 <> 2 ) do
+            begin
+                e := a + 2;
+            end;
+        
+        ProcedureWithParams(a,a,a,b,b,b)
+    end. 
