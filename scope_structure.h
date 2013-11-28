@@ -9,99 +9,99 @@
 #define SCOPE_STRUCTURE_H
 
 #include <stdio.h>
-#include "parser_bison.tab.h"
+#include "gramatica.tab.h"
 #include "tokens.h"
 
-/* ################################### Symbol Definition ################################### */
-/** EspÈcies de simbolos (symbol) possÌveis */
+/** Esp√©cies de s√≠mbolos (symbol) poss√≠veis */
 typedef enum { CONST, VAR, PROCEDURE, PARAM, PARAMLIST } especie;
 
-/** Estrutura de sÌmbolos que compıem a tabela de sÌmbolos */
+/** Estrutura de s√≠mbolos que compÔøΩem a tabela de s√≠mbolos */
 typedef struct symbol
 {
-	especie    		  spec;			// EspÈcie do Token
-	size_t     		  id; 			// Token Secund·rio
-	int 	   		  type;			// T_BOOLEAN | T_INTEGER | T_REAL
-	struct paramList* param_list;	// Lista de par‚metros
-	struct symbol*    next_symbol;	// Ref. para prÛximo simbolo no escopo
+	especie    		  spec;			 // Esp√©cie do Token
+	size_t     		  id; 			 // Token Secund√°rio
+	int 	   		  type;			 // T_BOOLEAN | T_INTEGER | T_REAL
+	YYSTYPE			  value;
+	struct paramList* param_list;	 // Lista de par√¢metros
+	struct symbol*    next_symbol;	 // Ref. para pr√≥ximo s√≠mbolo no escopo
+	struct codeblock* code_fragment; // Fragmento de c√≥digo
+	int 			  stack_num;
 }symbol;
 
-/** Retorna uma inst‚ncia de symbol */
+/** Retorna uma inst√¢ncia de symbol */
 symbol* symbolFactory();
 
-/** Impress„o formatada de um sÌmbolo */
+/** Impress√£o formatada de um s√≠mbolo */
 void printSymbol(symbol* pSymbol);
 
-/* ################################### Parameters List Definition ################################### */
-/** Lista ser· utilizada para guardar lista de par‚metros de procedimentos ( PROCEDURE ) */
+/** Lista ser√° utilizada para guardar lista de par√¢metros de procedimentos ( PROCEDURE ) */
 typedef struct paramList
 {
 	int length;
 	struct symbol* parameter;
 }paramList;
 
-/** Cria uma lista de par‚metros */
+/** Cria uma lista de par√¢metros */
 paramList* paramListFactory();
 
-/** Adiciona um sÌmbolo no inÌcio da lista de par‚metros
- * <p> pList - Lista que receber· o par‚metro
- * <p> pSymbol - SÌmbolo que ser· inserido
+/** Adiciona um s√≠mbolo no in√≠cio da lista de par√¢metros
+ * <p> pList - Lista que receber√° o par√¢metro
+ * <p> pSymbol - S√≠mbolo que ser√° inserido
  **/
 void paramListPushBack(paramList* pList, symbol* pSymbol);
 
-/** Adiciona um sÌmbolo no fim da lista de par‚metros
- * <p> pList - Lista que receber· o par‚metro
- * <p> pSymbol - SÌmbolo que ser· inserido
+/** Adiciona um s√≠mbolo no fim da lista de par√¢metros
+ * <p> pList - Lista que receber√° o par√¢metro
+ * <p> pSymbol - S√≠mbolo que ser√° inserido
  **/
 void paramListPushFront(paramList* pList, symbol* pSymbol);
 
-/** Compara duas listas de par‚metros nos queistos Id e tipo
- * <p> pList1 - Base para comparaÁ„o
+/** Compara duas listas de par√¢metros nos queistos Id e tipo
+ * <p> pList1 - Base para compara√ß√£o
  * <p> pList2 - Lista a ser comparada
  * <r> NULL - listas iguais
- * <r> symbol* - primeiro sÌmbolo cujo id e/ou tipo sejam diferentes entre as listas
+ * <r> symbol* - primeiro s√≠mbolo cujo id e/ou tipo sejam diferentes entre as listas
  **/
 symbol* compareParamList(paramList* pList1, paramList* pList2);
 
-/** Compara duas listas de par‚metros retornando a posiÁ„o onde ocorrer diferenÁa de tipos
- * <p> pList1 - Base para comparaÁ„o
+/** Compara duas listas de par√¢metros retornando a posi√ß√£o onde ocorrer diferen√ßaa de tipos
+ * <p> pList1 - Base para compara√ß√£o
  * <p> pList2 - Lista a ser comparada
  * <r> 0 - listas iguais
- * <r> i ( i > 0) - posiÁ„o do primeiro sÌmbolo cujo id e/ou tipo sejam diferentes entre as listas
+ * <r> i ( i > 0) - posi√ß√£o do primeiro sÔøΩmbolo cujo id e/ou tipo sejam diferentes entre as listas
  **/
 int compareParamList2(paramList* pList1, paramList* pList2);
 
-/** Compara duas listas de par‚metros
+/** Compara duas listas de par√¢metros
  * <p> pList1 - Lista
- * <p> pSymbol - SÌmbolo que ser· buscado na lista de par‚metros
- * <r> 0 - n„o existe
+ * <p> pSymbol - S√≠mbolo que ser√° buscado na lista de par√¢metros
+ * <r> 0 - n√£o existe
  * <r> 1 - existe
  **/
 int searchParam(paramList* pList, symbol* pSymbol);
 
-/** Compara duas listas de par‚metros
+/** Compara duas listas de par√¢metros
  * <p> pList1 - Lista
- * <p> pId - Id (Token 2) que ser· buscado
- * <r> 0 - n„o encontrou
+ * <p> pId - Id (Token 2) que ser√° buscado
+ * <r> 0 - n√£o encontrou
  * <r> 1 - encontrou
  **/
 int searchParam2(paramList* pList, int pId);
 
-/** Imprime uma lista de par‚metros
-  * <p> pList - Lista que ser· impressa
+/** Imprime uma lista de par√¢metros
+  * <p> pList - Lista que ser√° impressa
   **/
 void printParamList(paramList* pList);
 
-/** Ajusta o Tipo dos par‚metros de uma lista de par‚metros
-  * <p> pList - Lista de par‚metros
-  * <p> pType - Tipo dos par‚metros
+/** Ajusta o Tipo dos par√¢metros de uma lista de par√¢metros
+  * <p> pList - Lista de par√¢metros
+  * <p> pType - Tipo dos par√¢metros
   **/
 void setParamType(paramList* pList, int pType);
 
-/** Desaloca uma Lista de par‚metros */
+/** Desaloca uma Lista de par√¢metros */
 void releaseParamList(paramList* pList);
 
-/* ################################### SymTab Definition ################################### */
 /** Estrutura de entrada em cada Escopo
  *
  *   ________
@@ -109,7 +109,7 @@ void releaseParamList(paramList* pList);
  *    ______
  *    \_____\  : symbol
  *
- *  A tabela de simbolos fica:
+ *  A tabela de s√≠mbolos fica:
  *   ________   ______
  *  |________|->\_____\ -> NULL
  *   ___|____    ______     ______    ______
@@ -120,55 +120,61 @@ void releaseParamList(paramList* pList);
  * */
 typedef struct scope
 {
-	int           id;       // Identificador do escopo
-	symbol* 	  first;	// Ref. para o primeiro sÌmbolo do escopo
-	struct scope* down;		// Ref. para escopo inferior
+	int           id;         // Identificador do escopo
+	int			  num_vars;   // N¬∫ Vari√°veis do escopo
+	int 		  num_consts; // N¬∫ de Constantes do escopo
+	int 		  num_params; // N¬∫ de par√¢metros - usado somente com procedures
+	symbol* 	  first;	  // Ref. para o primeiro s√≠mbolo do escopo
+	struct scope* down;		  // Ref. para escopo inferior
 }scope;
 
 static int scope_count = 0;
 
 scope* top_scope;
 
-/** FunÁ„o que cria a tabela sÌmbolos */
+/** Fun√ß√£o que cria a tabela s√≠mbolos */
 void initSymTab();
 
-/** FunÁ„o que imprime a tabela de sÌmbolos */
+/** Fun√ß√£o que imprime a tabela de s√≠mbolos */
 void printSymTab();
 
-/** FunÁ„o que cria um novo bloco de escopo na tabela de sÌmbolos */
+/** Fun√ß√£o que cria um novo bloco de escopo na tabela de s√≠mbolos */
 void newScope();
 
-/** FunÁ„o que finaliza um bloco de escopo da tabela de sÌmbolos */
+/** Fun√ß√£o que finaliza um bloco de escopo da tabela de s√≠mbolos */
 void clearScope();
 
-/** FunÁ„o que realiza uma busca no escopo local da tabela de sÌmbolos
- *  <r> 0 - n„o encontrou;
+/** Fun√ß√£o que realiza uma busca no escopo local da tabela de s√≠mbolos
+ *  <r> 0 - n√£o encontrou;
  *  <r> 1 - encontrou.
  **/
 int localSearch(int pId);
 
-/** FunÁ„o que realiza uma busca atÈ o escopo global da tabela de sÌmbolos
-*  <r> 0 - n„o encontrou;
+/** Fun√ß√£o que realiza uma busca at√© o escopo global da tabela de s√≠mbolos
+*  <r> 0 - n√£o encontrou;
 *  <r> 1 - encontrou.
 **/
 int globalSearch(int pId);
 
-/** FunÁ„o que realiza uma busca atÈ o escopo global da tabela de sÌmbolos
-*  <r> symbol* - n„o symbolo encontrado correspondente ao pId passado;
+/** Fun√ß√£o que realiza uma busca at√© o escopo global da tabela de s√≠mbolos
+*  <r> symbol* - s√≠mbolo encontrado correspondente ao pId passado;
 *  <r> NULL - encontrou.
 **/
 symbol* globalSearch2(int pId);
 
-/** FunÁ„o que insere um elemento no escopo local da tabela de sÌmbolos */
+/** Fun√ß√£o que insere um elemento no escopo local da tabela de s√≠mbolos */
 void insertLocal(symbol* pSymbol);
 
-/** DeclaraÁ„o de Vari·veis - VAR */
+/** Insere um par√¢metro no escopo local */
+void insertParam(symbol* pSymbol);
+
+/** Declara√ß√£o de Vari√°veis - VAR */
 symbol* varDeclare(int pId, int pType);
 
-/** DeclaraÁ„o de Constantes - ( INT | REAL | BOOLEAN )_CONST */
+/** Declara√ß√£o de Constantes - ( INT | REAL | BOOLEAN )_CONST */
 symbol* constDeclare(int pId, YYSTYPE pValue, int pType);
 
-/** DeclaraÁ„o de Procedimento - PROCEDURE */
+/** Declara√ß√£o de Procedimento - PROCEDURE */
 symbol* procDeclare(int pId);
 
 #endif /* SCOPE_STRUCTURE_H */

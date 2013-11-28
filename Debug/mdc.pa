@@ -1,0 +1,53 @@
+PROGRAM FinalTest;
+    CONST
+        a = 332;
+        b =  32;
+        
+    VAR
+        v1, v2, q, d, r : INTEGER;
+
+    PROCEDURE mdc1( n1, n2 : INTEGER );
+        VAR
+          v1, v2, q, d, r : INTEGER;
+        
+        BEGIN
+            v1 := n1;
+            v2 := n2;
+            
+            WHILE r <> 0 DO
+                BEGIN
+                    q  :=   v1 DIV v2;
+                    r  := v1 - q * v2;
+                    v1 :=          v2;
+                    v2 :=           r;    
+                END;
+        END;
+        
+   PROCEDURE mdc2( n1, n2 : INTEGER );
+   	   VAR
+   	   	 v1, v2, q, d, r : INTEGER;
+   	   	 
+	   BEGIN
+		 	q :=   v1 DIV v2;
+            r := v1 - q * v2;
+            
+            IF r <> 0 THEN
+            	mdc2(v2,r);
+	   END;
+        
+BEGIN
+    mdc1(a,b);
+    mdc2(a,b);
+    
+    v1 := a;
+    v2 := b;
+    
+    WHILE r <> 0 DO
+        BEGIN
+            q  :=   v1 DIV v2;
+            r  := v1 - q * v2;
+            v1 :=          v2;
+            v2 :=           r;    
+        END;
+END.
+

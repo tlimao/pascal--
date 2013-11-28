@@ -7,24 +7,25 @@
 #include "scope_structure.h"
 #include <stdio.h>
 
-/* ################################### Symbol Functions ################################### */
-/** Retorna uma inst�ncia de symbol */
+/** Retorna uma instância de symbol */
 symbol* symbolFactory()
 {
 	symbol* new_symbol = (symbol*) malloc(sizeof(symbol));
 
 	new_symbol->next_symbol = NULL;
 	new_symbol->param_list = NULL;
+	new_symbol->code_fragment = codeBlockFactory(0);
 
 	return new_symbol;
 }
 
-/** Impress�o formatada de um s�mbolo */
+/** Impressão formatada de um símbolo */
 void printSymbol(symbol* pSymbol)
 {
 	if ( pSymbol->spec == PARAM )
 	{
 		printf("\n		<p>|name: %s, id: %d, spec: %d, type: %d|", getToken(pSymbol->id)->tk_name, pSymbol->id, pSymbol->spec, pSymbol->type);
+		printf("\nvalue: %d\n", pSymbol->value.tk_int);
 		printf("<p>");
 	}
 
@@ -40,8 +41,7 @@ void printSymbol(symbol* pSymbol)
 	}
 }
 
-/* ################################### Parameters List Functions ################################### */
-/** Cria uma lista de par�metros */
+/** Cria uma lista de parâmetros */
 paramList* paramListFactory()
 {
 	paramList* new_list = (paramList*) malloc(sizeof(paramList));
@@ -52,13 +52,13 @@ paramList* paramListFactory()
 	return new_list;
 }
 
-/** Adiciona um s�mbolo no in�cio da lista de par�metros
- * <p> pList - Lista que receber� o par�metro
- * <p> pSymbol - S�mbolo que ser� inserido
+/** Adiciona um símbolo no início da lista de parâmetros
+ * <p> pList - Lista que receberá o parâmetro
+ * <p> pSymbol - Símbolo que será inserido
  **/
 void paramListPushBack(paramList* pList, symbol* pSymbol)
 {
-	symbol* lSymbol = (symbol*) malloc(sizeof(symbol));
+	symbol* lSymbol = symbolFactory();
 
 	memcpy(lSymbol, pSymbol, sizeof(symbol));
 
@@ -86,13 +86,13 @@ void paramListPushBack(paramList* pList, symbol* pSymbol)
 	pList->length++;
 }
 
-/** Adiciona um s�mbolo no fim da lista de par�metros
- * <p> pList - Lista que receber� o par�metro
- * <p> pSymbol - S�mbolo que ser� inserido
+/** Adiciona um símbolo no fim da lista de parâmetros
+ * <p> pList - Lista que receberá o parâmetro
+ * <p> pSymbol - Símbolo que será inserido
  **/
 void paramListPushFront(paramList* pList, symbol* pSymbol)
 {
-	symbol* lSymbol = (symbol*) malloc(sizeof(symbol));
+	symbol* lSymbol = symbolFactory();
 
 	memcpy(lSymbol, pSymbol, sizeof(symbol));
 
@@ -129,11 +129,11 @@ paramList* invertParamList(paramList* pList)
 	return invertedParamList;
 }
 
-/** Compara duas listas de par�metros nos queistos Id e tipo
- * <p> pList1 - Base para compara��o
+/** Compara duas listas de parâmetros nos queistos Id e tipo
+ * <p> pList1 - Base para comparação
  * <p> pList2 - Lista a ser comparada
  * <r> NULL - listas iguais
- * <r> symbol* - primeiro s�mbolo cujo id e/ou tipo sejam diferentes entre as listas
+ * <r> symbol* - primeiro símbolo cujo id e/ou tipo sejam diferentes entre as listas
  **/
 symbol* compareParamList(paramList* pList1, paramList* pList2)
 {
@@ -147,7 +147,7 @@ symbol* compareParamList(paramList* pList1, paramList* pList2)
 
 		while ( ( aux1 != NULL ) || ( aux2 != NULL ) )
 		{
-			if ( !isCompatibility(aux1->type, aux2->type) )
+			if ( checkCompatibility(aux1->type, aux2->type) == 0 )
 			{
 				return aux2;
 				break;
@@ -161,11 +161,11 @@ symbol* compareParamList(paramList* pList1, paramList* pList2)
 	return NULL;
 }
 
-/** Compara duas listas de par�metros retornando a posi��o onde ocorrer diferen�a de tipos
- * <p> pList1 - Base para compara��o
+/** Compara duas listas de parâmetros retornando a posição onde ocorrer diferença de tipos
+ * <p> pList1 - Base para comparação
  * <p> pList2 - Lista a ser comparada
  * <r> 0 - listas iguais
- * <r> i ( i > 0) - posi��o do primeiro s�mbolo cujo id e/ou tipo sejam diferentes entre as listas
+ * <r> i ( i > 0) - posição do primeiro símbolo cujo id e/ou tipo sejam diferentes entre as listas
  **/
 int compareParamList2(paramList* pList1, paramList* pList2)
 {
@@ -196,10 +196,34 @@ int compareParamList2(paramList* pList1, paramList* pList2)
 	return 0;
 }
 
-/** Compara duas listas de par�metros
+/** Faz um merge de duas listas de parâmetros
+  * <p> pList1 - Lista que receberá os valores
+  * <p> pList2 - Lista de onde buscaremos os valores para dar o merge
+  **/
+void mergeParamList(paramList* pList1, paramList* pList2)
+{
+	symbol* aux1;
+	symbol* aux2;
+
+	if ( pList1 != NULL && pList2 != NULL )
+	{
+		aux1 = pList1->parameter;
+		aux2 = pList2->parameter;
+
+		aux1->value = aux2->value;
+
+		while ( ( aux1 != NULL ) || ( aux2 != NULL ) )
+		{
+			aux1 = aux1->next_symbol;
+			aux2 = aux2->next_symbol;
+		}
+	}
+}
+
+/** Compara duas listas de parâmetros
  * <p> pList1 - Lista
- * <p> pSymbol - S�mbolo que ser� buscado na lista de par�metros
- * <r> 0 - n�o existe
+ * <p> pSymbol - Símbolo que será buscado na lista de parâmetros
+ * <r> 0 - não existe
  * <r> 1 - existe
  **/
 int searchParam(paramList* pList, symbol* pSymbol)
@@ -254,11 +278,11 @@ int searchParam2(paramList* pList, int pId)
 	}
 }
 
-/** Compara duas listas de par�metros
+/** Busca um símbolo numa lista de parâmetros
  * <p> pList1 - Lista
- * <p> pSymbol - S�mbolo que ser� buscado na lista de par�metros
+ * <p> pSymbol - Símbolo que será buscado na lista de parâmetros
  * <r> symbol* se encontrar;
- * <r> NULL se n�o encontrar
+ * <r> NULL se não encontrar
  **/
 symbol* getParam(paramList* pList, symbol* pSymbol)
 {
@@ -285,6 +309,7 @@ symbol* getParam(paramList* pList, symbol* pSymbol)
 	}
 }
 
+/** Busca pelo Id um símbolo numa lista de parâmetros */
 symbol* getParam2(paramList* pList, int pId)
 {
 	if ( pList->parameter == NULL )
@@ -310,8 +335,8 @@ symbol* getParam2(paramList* pList, int pId)
 	}
 }
 
-/** Imprime uma lista de par�metros
-  * <p> pList - Lista que ser� impressa
+/** Imprime uma lista de parâmetros
+  * <p> pList - Lista que será impressa
   * */
 void printParamList(paramList* pList)
 {
@@ -331,9 +356,9 @@ void printParamList(paramList* pList)
 	}
 }
 
-/** Ajusta o Tipo dos par�metros de uma lista de par�metros
-  * <p> pList - Lista de par�metros
-  * <p> pType - Tipo dos par�metros
+/** Ajusta o Tipo dos parâmetros de uma lista de parâmetros
+  * <p> pList - Lista de parâmetros
+  * <p> pType - Tipo dos parâmetros
   * */
 void setParamType(paramList* pList, int pType)
 {
@@ -351,7 +376,7 @@ void setParamType(paramList* pList, int pType)
 	}
 }
 
-/** Desaloca uma Lista de par�metros */
+/** Desaloca uma Lista de parâmetros */
 void releaseParamList(paramList* pList)
 {
 	symbol* aux1;
@@ -371,8 +396,7 @@ void releaseParamList(paramList* pList)
 	free(pList);
 }
 
-/* ################################### SymTab Functions ################################### */
-/** Fun��o que cria a tabela s�mbolos */
+/** Função que cria a tabela símbolos */
 void initSymTab()
 {
 	top_scope = (scope*) malloc(sizeof(scope));
@@ -380,11 +404,12 @@ void initSymTab()
 	top_scope->id = scope_count++;
 	top_scope->first = NULL;
 	top_scope->down = NULL;
-
-	printf("SymTab Created\n");
+	top_scope->num_consts = 0;
+	top_scope->num_vars = 0;
+	top_scope->num_params = 0;
 }
 
-/** Fun��o que imprime a tabela de s�mbolos */
+/** Função que imprime a tabela de símbolos */
 void printSymTab()
 {
 	scope* scope;
@@ -424,26 +449,29 @@ void printSymTab()
 	}
 }
 
-/** Fun��o que cria um novo bloco de escopo na tabela de s�mbolos */
+/** Função que cria um novo bloco de escopo na tabela de símbolos */
 void newScope()
 {
-	printSymTab();
+	//printSymTab();
 
 	scope* new_scope = (scope*) malloc(sizeof(scope));
 
 	new_scope->id = scope_count++;
 	new_scope->first = NULL;
 	new_scope->down = top_scope;
+	new_scope->num_consts = 0;
+	new_scope->num_vars = 0;
+	new_scope->num_params = 0;
 
 	top_scope = new_scope;
 
-	printSymTab();
+	//printSymTab();
 }
 
-/** Fun��o que finaliza um bloco de escopo da tabela de s�mbolos */
+/** Função que finaliza um bloco de escopo da tabela de símbolos */
 void clearScope()
 {
-	printSymTab();
+	//printSymTab();
 
 	symbol* aux1;
 	symbol* aux2;
@@ -468,11 +496,13 @@ void clearScope()
 
 	scope_count--;
 
-	printSymTab();
+	// Deveria liberar memória :p
+
+	//printSymTab();
 }
 
-/** Fun��o que realiza uma busca no escopo local da tabela de s�mbolos
- *  <r> 0 - n�o encontrou;
+/** Função que realiza uma busca no escopo local da tabela de símbolos
+ *  <r> 0 - não encontrou;
  *  <r> 1 - encontrou.
  **/
 int localSearch(int pId)
@@ -497,8 +527,8 @@ int localSearch(int pId)
 	return count;
 }
 
-/** Fun��o que realiza uma busca at� o escopo global da tabela de s�mbolos
-*  <r> 0 - n�o encontrou;
+/** Função que realiza uma busca at� o escopo global da tabela de símbolos
+*  <r> 0 - não encontrou;
 *  <r> 1 - encontrou.
 **/
 int globalSearch(int pId)
@@ -531,8 +561,8 @@ int globalSearch(int pId)
 	return count;
 }
 
-/** Fun��o que realiza uma busca at� o escopo global da tabela de s�mbolos
-*  <r> symbol* - n�o symbolo encontrado correspondente ao pId passado;
+/** Função que realiza uma busca até o escopo global da tabela de símbolos
+*  <r> symbol* - símbolo encontrado correspondente ao pId passado;
 *  <r> NULL - encontrou.
 **/
 symbol* globalSearch2(int pId)
@@ -569,17 +599,15 @@ symbol* globalSearch2(int pId)
 	return aux2;
 }
 
-/** Fun��o que insere um elemento no escopo local da tabela de s�mbolos */
+/** Função que insere um elemento no escopo local da tabela de símbolos */
 void insertLocal(symbol* pSymbol)
 {
-	symbol* lSymbol = (symbol*) malloc(sizeof(symbol));
+	symbol* lSymbol = symbolFactory();
 
 	memcpy(lSymbol, pSymbol, sizeof(symbol));
 
 	if ( top_scope->first == NULL )
 	{
-
-
 		lSymbol->next_symbol = NULL;
 
 		top_scope->first = lSymbol;
@@ -597,11 +625,18 @@ void insertLocal(symbol* pSymbol)
 		lSymbol->next_symbol = NULL;
 
 		aux->next_symbol = lSymbol;
-
 	}
 }
 
-/** Declara��o de Vari�veis - VAR */
+/** Insere um parâmetro no escopo local */
+void insertParam(symbol* pSymbol)
+{
+	pSymbol->stack_num = top_scope->num_params++;
+
+	insertLocal(pSymbol);
+}
+
+/** Declaração de Variáveis - VAR */
 symbol* varDeclare(int pId, int pType)
 {
 	if ( localSearch(pId) != 0 )
@@ -609,7 +644,7 @@ symbol* varDeclare(int pId, int pType)
 		return NULL;
 	}
 
-	symbol* s = (symbol*) malloc(sizeof(symbol));
+	symbol* s = symbolFactory();
 
 	s->id = pId;
 	s->param_list = NULL;
@@ -621,7 +656,7 @@ symbol* varDeclare(int pId, int pType)
 	return s;
 }
 
-/** Declara��o de Constantes - ( INT | REAL | BOOLEAN )_CONST */
+/** Declaração de Constantes - ( INT | REAL | BOOLEAN )_CONST */
 symbol* constDeclare(int pId, YYSTYPE pValue, int pType)
 {
 	if ( localSearch(pId) != 0 )
@@ -629,11 +664,13 @@ symbol* constDeclare(int pId, YYSTYPE pValue, int pType)
 		return NULL;
 	}
 
-	symbol* lSymbol = (symbol*) malloc(sizeof(symbol));
+	symbol* lSymbol = symbolFactory();
 
 	lSymbol->id = pId;
+	lSymbol->value = pValue;
 	lSymbol->param_list = NULL;
 	lSymbol->spec = CONST;
+	lSymbol->stack_num = top_scope->num_consts++;
 
 	if ( pType == T_INT_CONST )
 	{
@@ -655,7 +692,7 @@ symbol* constDeclare(int pId, YYSTYPE pValue, int pType)
 	return lSymbol;
 }
 
-/** Declara��o de Procedimento - PROCEDURE */
+/** Declaração de Procedimento - PROCEDURE */
 symbol* procDeclare(int pId)
 {
 
@@ -664,13 +701,14 @@ symbol* procDeclare(int pId)
 		return NULL;
 	}
 
-	symbol* lSymbol = (symbol*) malloc(sizeof(symbol));
+	symbol* lSymbol = symbolFactory();
 
 	lSymbol->id = pId;
 	lSymbol->param_list = paramListFactory();
 	lSymbol->spec = PROCEDURE;
 	lSymbol->type = T_INVALID;
 	lSymbol->next_symbol = NULL;
+	lSymbol->stack_num = procedure_count++;
 
 	insertLocal(lSymbol);
 

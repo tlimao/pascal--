@@ -22,18 +22,19 @@ typedef struct expression
 {
 	int operation;
 	int type;
+	struct codeblock* code_fragment;
 }expression;
 
 static int*** typeTableCheck;
 
 static int** typeCompatibleTable;
 
-/** Cria a tabela com todas as opera��es e suas possibilidades de opera��es
-  * Opera��es: + - * / mod div not and or = <> < <= > >=
+/** Cria a tabela com todas as operações e suas possibilidades de opera��es
+  * Operações: + - * / mod div not and or = <> < <= > >=
   *
   * Id�ia: Matriz tridimensional (i,j,k), em que cada dimens�o i representa
-  * uma opera��o (operation) e as dimens�es j e k representam os tipos. Por
-  * exemplo, numa dimens�o i ter�amos:
+  * uma operação (operation) e as dimensões j e k representam os tipos. Por
+  * exemplo, numa dimens�o i teríamos:
   *
   * operation| boolean | integer | real
   *  boolean |	  -    |    -    |  -
@@ -63,20 +64,20 @@ void createTypeTable();
 void clearTypeTables();
 
 /** Dados dois operandos de tipos pType1 e pType2 e, uma opera��o retorna, verificando na tabela relacional de
-  * Tipos - Opera��es o tipo do resultado obtido pela opera��o, caso poss�vel, ou retornando inv�lido caso n�o
+  * Tipos - Opera��es o tipo do resultado obtido pela opera��o, caso poss�vel, ou retornando inválido caso não
   * seja poss�vel.
   *
   * <p> pType1 - tipo do operando 1
   * <p> pType2 - tipo do operando 2
-  * <p> pOperation - opera��o
+  * <p> pOperation - operação
   *
-  * <r> T_(INTEGER | REAL | BOOLEAN ) - tipo do reusltado da opera��o caso seja uma opera��o v�lida para os
+  * <r> T_(INTEGER | REAL | BOOLEAN ) - tipo do reusltado da operação caso seja uma operação válida para os
   * tipos de operandos pType1 e pType2 passados
-  * <r> T_INVALID - n�o seja uma opera��o v�lida
+  * <r> T_INVALID - Operação inválida
  **/
 int getExpressionReturnType(int pType1, int pType2, int pOperation);
 
-/** Verify if types are compatibles */
-int isCompatibility(int pType1, int pType2);
+/** Verifica se os tipos passados como parâmetro são compatíveis */
+int  checkCompatibility(int pType1, int pType2);
 
 #endif /* TYPE_CHECK_H */

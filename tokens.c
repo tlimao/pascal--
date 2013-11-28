@@ -6,7 +6,7 @@
  */
 #include "tokens.h"
 
-/** Retorna uma instância de token */
+/** Retorna uma instÃ¢ncia de token */
 token* factoryToken()
 {
 	token* new_token = (token*) malloc(sizeof(token));
@@ -24,26 +24,16 @@ int incTk2Count()
 	return tk2_count++;
 }
 
-/** Imprime a lista de tokens com tokens secundários */
-void printToken2List()
-{
-	token2List* lToken;
-	for ( lToken = tk2_list ; lToken != NULL ; lToken = lToken->tk_prox )
-	{
-		printToken(lToken->tk);
-	}
-}
-
 /** Adiciona o novo id na lista de token identificadores */
 void addIdToken(token* pToken)
 {
-	token2List* lToken;
+	tokenNoh* lToken;
 
 	if ( tk2_list == NULL )
 	{
-		token2List* new_tk = (token2List*) malloc(sizeof(token2List));
+		tokenNoh* new_tk = (tokenNoh*) malloc(sizeof(tokenNoh));
 		new_tk->tk = pToken;
-		pToken->tk_idx = incTk2Count();
+		pToken->tk_id = incTk2Count();
 		new_tk->tk_prox = NULL;
 		tk2_list = new_tk;
 	}
@@ -54,16 +44,16 @@ void addIdToken(token* pToken)
 		{
 			if ( strcmp(lToken->tk->tk_name, pToken->tk_name) == 0 )
 			{
-				pToken->tk_idx = lToken->tk->tk_idx;
+				pToken->tk_id = lToken->tk->tk_id;
 				break;
 			}
 		}
 
 		if ( lToken == NULL )
 		{
-			token2List* new_tk = (token2List*) malloc(sizeof(token2List));
+			tokenNoh* new_tk = (tokenNoh*) malloc(sizeof(tokenNoh));
 			new_tk->tk = pToken;
-			pToken->tk_idx = incTk2Count();
+			pToken->tk_id = incTk2Count();
 			new_tk->tk_prox = tk2_list;
 
 			tk2_list = new_tk;
@@ -71,41 +61,65 @@ void addIdToken(token* pToken)
 	}
 }
 
+/** Imprime a lista de tokens com tokens secundÃ¡rios */
+void printTokenList()
+{
+	tokenNoh* lToken;
+
+	for ( lToken = tk2_list ; lToken != NULL ; lToken = lToken->tk_prox )
+	{
+		printToken(lToken->tk);
+	}
+}
+
 /** Imprime o Token */
 void printToken(token* pToken)
 {
 	if ( pToken->tk_1 == 2 )
-		printf("%s \n Token 1: %i \n Token 2: %i\n", pToken->tk_name, pToken->tk_1, pToken->tk_int);
+	{
+		printf("%s\t\t\t  Token 1: %-2i\t\t\t  Token 2: %-2i\n", pToken->tk_name, pToken->tk_1, pToken->tk_int);
+	}
 
 	else if ( pToken->tk_1 == 3 )
-		printf("%s \n Token 1: %i \n Token 2: %f\n", pToken->tk_name, pToken->tk_1, pToken->tk_real);
+	{
+		printf("%s\t\t\t  Token 1: %-2i\t\t\t  Token 2: %2.5f\n", pToken->tk_name, pToken->tk_1, pToken->tk_real);
+	}
 
 	else if ( pToken->tk_1 == 4 )
 	{
 		if ( pToken->tk_bool == 1 )
-			printf("%s \n Token 1: %i \n Token 2: true\n", pToken->tk_name, pToken->tk_1);
+		{
+			printf("%s\t\t\t  Token 1: %-2i\t\t\t  Token 2: true\n", pToken->tk_name, pToken->tk_1);
+		}
+
 		else
-			printf("%s \n Token 1: %i \n Token 2: false\n", pToken->tk_name, pToken->tk_1);
+		{
+			printf("%s\t\t\t  Token 1: %-2i\t\t\t  Token 2: false\n", pToken->tk_name, pToken->tk_1);
+		}
 	}
 
 	else if ( pToken->tk_1 == 1 )
 	{
-		printf("%s \n Token 1: %i \n Token 2: %i\n", pToken->tk_name, pToken->tk_1, pToken->tk_idx);
+		printf("%s\t\t\t  Token 1: %-2i\t\t\t  Token 2: %-2i\n", pToken->tk_name, pToken->tk_1, pToken->tk_id);
 	}
 
 	else
-		printf("%s \n Token 1: %i\n", pToken->tk_name, pToken->tk_1);
+	{
+		printf("%s\t\t\t  Token 1: %-2i\n", pToken->tk_name, pToken->tk_1);
+	}
+
+	printf("___________________________________________________________________________________________________\n");
 
 }
 
-/** Busca um token baseado em seu id de token secundário na lista token2List */
+/** Busca um token baseado em seu id de token secundÃ¡rio na lista token2List */
 token* getToken(int pId)
 {
-	token2List* lToken;
+	tokenNoh* lToken;
 
 	for ( lToken = tk2_list ; lToken != NULL ; lToken = lToken->tk_prox )
 	{
-		if ( lToken->tk->tk_idx == pId )
+		if ( lToken->tk->tk_id == pId )
 		{
 			return lToken->tk;
 			break;
@@ -115,127 +129,12 @@ token* getToken(int pId)
 	return NULL;
 }
 
-/** Verifica se o char é um digito */
-int isDigit(char pChar)
-{
-	return ( pChar > 47 && pChar < 58 ) ? 1 : 0;
-}
-
-/** Verifica se o char é um caractere */
-int isAlpha(char pChar)
-{
-	return ( pChar > 96 && pChar < 123 ) ? 1 : 0;
-}
-
-/** Verifica se o char é um underline */
-int isUnderline(char pChar)
-{
-	return ( pChar == '_' ) ? 1 : 0;
-}
-
-/** Verifica se o char é um separador "espaço" ou "tab" */
-int isSeparator(char pChar)
-{
-	return ( pChar == ' ' || pChar == '\t' || pChar == '\n' ) ? 1 : 0;
-}
-
-/** Verifica se o char é uma marcação de fim de arquivo */
-int isEOF(char pChar)
-{
-	return ( pChar == EOF ) ? 1 : 0;
-}
-
-/** Verifica se ochar é um operador + - * / */
-int isOperator(char pChar)
-{
-	if ( pChar == '+' || pChar == '-' || pChar == '*' || pChar == '/' )
-		return 1;
-	else
-		return 0;
-}
-
-/** Verifica se o token é uma palavra reservada */
-void classifyToken(token* pToken)
-{
-	if ( strcmp(pToken->tk_name, "true") == 0 || strcmp(pToken->tk_name, "false") == 0 )
-	{
-		pToken->tk_1 = T_BOOLEAN_CONST;
-		pToken->tk_bool = (strcmp(pToken->tk_name, "true") == 0 ) ? 1 : 0;
-		strcpy(pToken->tk_name,"boolean const");
-	}
-
-	else if ( strcmp(pToken->tk_name, "program") == 0 )
-		pToken->tk_1 = T_PROGRAM;
-
-	else if ( strcmp(pToken->tk_name, "procedure") == 0 )
-		pToken->tk_1 = T_PROCEDURE;
-
-	else if ( strcmp(pToken->tk_name, "begin") == 0 )
-		pToken->tk_1 = T_BEGIN;
-
-	else if ( strcmp(pToken->tk_name, "end") == 0 )
-		pToken->tk_1 = T_END;
-
-	else if ( strcmp(pToken->tk_name, "if") == 0 )
-		pToken->tk_1 = T_IF;
-
-	else if ( strcmp(pToken->tk_name, "then") == 0 )
-		pToken->tk_1 = T_THEN;
-
-	else if ( strcmp(pToken->tk_name, "else") == 0 )
-		pToken->tk_1 = T_ELSE;
-
-	else if ( strcmp(pToken->tk_name, "while") == 0 )
-		pToken->tk_1 = T_WHILE;
-
-	else if ( strcmp(pToken->tk_name, "do") == 0 )
-		pToken->tk_1 = T_DO;
-
-	else if ( strcmp(pToken->tk_name, "div") == 0 )
-		pToken->tk_1 = T_DIV;
-
-	else if ( strcmp(pToken->tk_name, "mod") == 0 )
-		pToken->tk_1 = T_MOD;
-
-	else if ( strcmp(pToken->tk_name, "and") == 0 )
-		pToken->tk_1 = T_AND;
-
-	else if ( strcmp(pToken->tk_name, "or") == 0 )
-		pToken->tk_1 = T_OR;
-
-	else if ( strcmp(pToken->tk_name, "not") == 0 )
-		pToken->tk_1 = T_NOT;
-
-	else if ( strcmp(pToken->tk_name, "var") == 0 )
-		pToken->tk_1 = T_VAR;
-
-	else if ( strcmp(pToken->tk_name, "integer") == 0 )
-		pToken->tk_1 = T_INTEGER;
-
-	else if ( strcmp(pToken->tk_name, "real") == 0 )
-		pToken->tk_1 = T_REAL;
-
-	else if ( strcmp(pToken->tk_name, "boolean") == 0 )
-		pToken->tk_1 = T_BOOLEAN;
-
-	else if ( strcmp(pToken->tk_name, "const") == 0 )
-		pToken->tk_1 = T_CONST;
-
-	else if ( strcmp(pToken->tk_name, "until") == 0 )
-		pToken->tk_1 = T_UNTIL;
-
-	else
-	{
-		pToken->tk_1 = T_ID;
-	}
-}
-
-/** Função que retorna os tokens identificados nos dados fornecidos */
+/** FunÃ§Ã£o que retorna os tokens identificados nos dados fornecidos */
 token* nextToken()
 {
 	token* lToken = factoryToken();
 
-	// Ignora os espaços e tabulações
+	// Ignora os espaï¿½os e tabulaÃ§Ãµes
 	skipSeparators();
 
 	char* c = nextChar();
@@ -248,7 +147,7 @@ token* nextToken()
 		return lToken;
 	}
 
-	// Alfanuméricos
+	// AlfanumÃ©ricos
 	else if ( isAlpha(c) || isUnderline(c) )
 	{
 		while ( ( isAlpha(c) || isUnderline(c) || isDigit(c) ) && !isEOF(c) )
@@ -258,10 +157,14 @@ token* nextToken()
 			char next = getChar();
 
 			if ( isAlpha(next) || isUnderline(next) || isDigit(next) )
+			{
 				c = nextChar();
+			}
 
 			else
+			{
 				break;
+			}
 		}
 
 		classifyToken(lToken);
@@ -280,14 +183,14 @@ token* nextToken()
 			return lToken;
 		}
 
-		// Números Inteiros e Reais
+		// NÃºmeros Inteiros e Reais
 		else
 		{
 			return isNumber();
 		}
 	}
 
-	// Cometários
+	// CometÃ¡rios
 	else if ( c == '{' )
 	{
 		while ( c != '}' && c != EOF )
@@ -297,24 +200,24 @@ token* nextToken()
 
 		if ( c == '}' )
 		{
-			// Salta Comentário
+			// Salta ComentÃ¡rio
 			return nextToken();
 		}
 
 		else
 		{
-			strcpy(lToken->tk_name, "Token Inválido");
+			strcpy(lToken->tk_name, "Invalid Token");
 			lToken->tk_1 = T_INVALID;
 			return lToken;
 		}
 	}
 
-	// Parenteses e Comentário
+	// Parenteses e ComentÃ¡rio
 	else if ( c == '(' )
 	{
 		char* aux = lookNextChar();
 
-		// Comentário
+		// Comentï¿½rio
 		if ( aux == '*' )
 		{
 			goFront();
@@ -330,13 +233,13 @@ token* nextToken()
 			if ( c == '*' && aux == ')' )
 			{
 				yyBuffer->idx++;
-				// Salta Comentário
+				// Salta ComentÃ¡rio
 				return nextToken();
 			}
 
 			else
 			{
-				strcpy(lToken->tk_name, "Token Inválido");
+				strcpy(lToken->tk_name, "Invalid Token");
 				lToken->tk_1 = T_INVALID;
 
 				return lToken;
@@ -414,7 +317,7 @@ token* nextToken()
 		return lToken;
 	}
 
-	// Assign
+	// AtribuiÃ§Ã£o
 	if ( c == ':' )
 	{
 		if ( lookNextChar() == '=' )
@@ -433,7 +336,7 @@ token* nextToken()
 		return lToken;
 	}
 
-	// Ponto e vírgula
+	// Ponto e vÃ­rgula
 	if ( c == ';' )
 	{
 		strcpy(lToken->tk_name, "Semicolon");
@@ -441,7 +344,7 @@ token* nextToken()
 		return lToken;
 	}
 
-	// Vírgula
+	// VÃ­rgula
 	if ( c == ',' )
 	{
 		strcpy(lToken->tk_name, "Comma");
@@ -449,7 +352,7 @@ token* nextToken()
 		return lToken;
 	}
 
-	// Soma
+	// AdiÃ§Ã£o
 	else if ( c == '+' )
 	{
 		if ( lookNextChar() == '=' )
@@ -468,7 +371,7 @@ token* nextToken()
 		return lToken;
 	}
 
-	// Subtração
+	// SubtraÃ§Ã£o
 	else if ( c == '-' )
 	{
 		if ( lookNextChar() == '=' )
@@ -506,7 +409,7 @@ token* nextToken()
 		return lToken;
 	}
 
-	// Divisão
+	// DivisÃ£o
 	else if ( c == '/' )
 	{
 		if ( lookNextChar() == '=' )
@@ -525,16 +428,132 @@ token* nextToken()
 		return lToken;
 	}
 
-	// Tokens inválidos
+	// Tokens invÃ¡lidos
 	else
 	{
-		strcpy(lToken->tk_name, "Token Inválido");
+		strcpy(lToken->tk_name, "Invalid Token");
 		lToken->tk_1 = T_INVALID;
 		return lToken;
 	}
 }
 
-/** Verifica se o token é um número int const ou real const */
+/** Verifica se o char Ã© um digito */
+int isDigit(char pChar)
+{
+	return ( pChar > 47 && pChar < 58 ) ? 1 : 0;
+}
+
+/** Verifica se o char Ã© um caractere */
+int isAlpha(char pChar)
+{
+	return ( pChar > 96 && pChar < 123 ) ? 1 : 0;
+}
+
+/** Verifica se o char Ã© um underline */
+int isUnderline(char pChar)
+{
+	return ( pChar == '_' ) ? 1 : 0;
+}
+
+/** Verifica se o char Ã© um separador "espaÃ§o" ou "tab" */
+int isSeparator(char pChar)
+{
+	return ( pChar == ' ' || pChar == '\t' || pChar == '\n' ) ? 1 : 0;
+}
+
+/** Verifica se o char Ã© um operador + - * / */
+int isOperator(char pChar)
+{
+	if ( pChar == '+' || pChar == '-' || pChar == '*' || pChar == '/' )
+		return 1;
+	else
+		return 0;
+}
+
+/** Verifica se o char Ã© um marcador de fim de arquivo */
+int isEOF(char pChar)
+{
+	return ( pChar == EOF ) ? 1 : 0;
+}
+
+/** Verifica se o token Ã© uma palavra reservada */
+void classifyToken(token* pToken)
+{
+	if ( strcmp(pToken->tk_name, "true") == 0 || strcmp(pToken->tk_name, "false") == 0 )
+	{
+		pToken->tk_1 = T_BOOLEAN_CONST;
+		pToken->tk_bool = (strcmp(pToken->tk_name, "true") == 0 ) ? 1 : 0;
+		strcpy(pToken->tk_name,"boolean const");
+	}
+
+	else if ( strcmp(pToken->tk_name, "program") == 0 )
+		pToken->tk_1 = T_PROGRAM;
+
+	else if ( strcmp(pToken->tk_name, "procedure") == 0 )
+		pToken->tk_1 = T_PROCEDURE;
+
+	else if ( strcmp(pToken->tk_name, "begin") == 0 )
+		pToken->tk_1 = T_BEGIN;
+
+	else if ( strcmp(pToken->tk_name, "end") == 0 )
+		pToken->tk_1 = T_END;
+
+	else if ( strcmp(pToken->tk_name, "if") == 0 )
+		pToken->tk_1 = T_IF;
+
+	else if ( strcmp(pToken->tk_name, "then") == 0 )
+		pToken->tk_1 = T_THEN;
+
+	else if ( strcmp(pToken->tk_name, "else") == 0 )
+		pToken->tk_1 = T_ELSE;
+
+	else if ( strcmp(pToken->tk_name, "while") == 0 )
+		pToken->tk_1 = T_WHILE;
+
+	else if ( strcmp(pToken->tk_name, "do") == 0 )
+		pToken->tk_1 = T_DO;
+
+	else if ( strcmp(pToken->tk_name, "div") == 0 )
+		pToken->tk_1 = T_DIV;
+
+	else if ( strcmp(pToken->tk_name, "mod") == 0 )
+		pToken->tk_1 = T_MOD;
+
+	else if ( strcmp(pToken->tk_name, "and") == 0 )
+		pToken->tk_1 = T_AND;
+
+	else if ( strcmp(pToken->tk_name, "or") == 0 )
+		pToken->tk_1 = T_OR;
+
+	else if ( strcmp(pToken->tk_name, "not") == 0 )
+		pToken->tk_1 = T_NOT;
+
+	else if ( strcmp(pToken->tk_name, "var") == 0 )
+		pToken->tk_1 = T_VAR;
+
+	else if ( strcmp(pToken->tk_name, "integer") == 0 )
+		pToken->tk_1 = T_INTEGER;
+
+	else if ( strcmp(pToken->tk_name, "real") == 0 )
+		pToken->tk_1 = T_REAL;
+
+	else if ( strcmp(pToken->tk_name, "boolean") == 0 )
+		pToken->tk_1 = T_BOOLEAN;
+
+	else if ( strcmp(pToken->tk_name, "const") == 0 )
+		pToken->tk_1 = T_CONST;
+
+	else if ( strcmp(pToken->tk_name, "until") == 0 )
+		pToken->tk_1 = T_UNTIL;
+
+	else
+	{
+		pToken->tk_1 = T_ID;
+		pToken->tk_id = incTk2Count();
+	}
+}
+
+/** Verifica se o token Ã© um int const ou real const */
 token* isNumber()
 {
 	token* lToken = factoryToken();
@@ -548,7 +567,7 @@ token* isNumber()
 
 	while ( ( isDigit(c) || c == '.' ) && !isEOF(c) )
 	{
-		// Flag indicando que é um ponto flutuante
+		// Flag indicando que Ã© um ponto flutuante
 		if ( c == '.' )
 		{
 			is_real = 1;
@@ -557,7 +576,7 @@ token* isNumber()
 		else
 		{
 			v = v*10 + (int) c - (int) '0';
-			// Em caso de ser ponto flutuante, o expoente é incrementado
+			// Em caso de ser ponto flutuante, o expoente Ã© incrementado
 			exp1 += ( is_real ) ? 1 : 0;
 			is_num = 1;
 		}
@@ -605,7 +624,7 @@ token* isNumber()
 		goBack();
 	}
 
-	// Caso o próximo char do buffer seja um alfanumérico é identificado um erro
+	// Caso o prÃ³ximo char do buffer seja um alfanumÃ©rico Ã© identificado um erro
 	if ( !isAlpha(c) && is_exp && is_num )
 	{
 		if ( !is_real )
@@ -630,7 +649,7 @@ token* isNumber()
 			c = nextChar();
 		}
 
-		strcpy(lToken->tk_name, "Token Inválido");
+		strcpy(lToken->tk_name, "Invalid Token");
 		lToken->tk_1 = T_INVALID;
 	}
 

@@ -36,6 +36,7 @@
 
 
 #include "type_check.h"
+#include "wml_codegen.h"
 
 
 
@@ -105,14 +106,15 @@ typedef union YYSTYPE
 {
 
 
-	char  tk_name[32];
-	int   tk_1;
-	int   tk_idx;
-	int   tk_int;
-	int   tk_bool;
-	float tk_real;
+	char   tk_name[32];
+	int    tk_1;
+	int    tk_id;
+	int    tk_int;
+	int    tk_bool;
+	float  tk_real;
 	struct symbol* record;
 	struct expression expr;
+	struct codeblock* code_fragment;
 
 
 

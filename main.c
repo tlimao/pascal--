@@ -64,9 +64,7 @@ int main(int argc, char** argv)
 		while ( hasNext() )
 		{
 			la_token = nextToken();
-			printf("\n");
 			printToken(la_token);
-			system("pause");
 		}
 
 		yyBuffer->idx = 0;

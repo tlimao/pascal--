@@ -8,7 +8,7 @@
 #ifndef TOKENS_H
 #define TOKENS_H
 
-/*
+/* Utilizado Anteriormente na an√°lise l√©xica
 #define T_EOF                  0
 #define T_ID                   1
 #define T_INT_CONST            2
@@ -60,70 +60,77 @@
 #define T_INVALID             255
 */
 
+#include "lexer.h"
+#include "gramatica.tab.h"
 #include "buffer.h"
-#include "parser_bison.tab.h"
 #include <math.h>
 
 typedef struct token
 {
 	char  tk_name[32];							// Nome do Identificador caso seja um Token do tipo id
-	int   tk_1;									// Token Prim·rio
-	int   tk_idx;								// Token Secund·rio no caso de ser um id
-	int   tk_int;								// Token secund·rio no caso de ser um intconst
-	int   tk_bool;								// Token secund·rio no caso de ser um booleano
-	float tk_real;								// Token secund·rio no caso de ser um realconst
+	int   tk_1;									// Token Prim√°rio
+	int   tk_id;								// Token Secund√°rio no caso de ser um id
+	int   tk_int;								// Token Secund√°rio no caso de ser um intconst
+	int   tk_bool;								// Token Secund√°rio no caso de ser um booleano
+	float tk_real;								// Token Secund√°rio no caso de ser um realconst
 }token;
 
-typedef struct token2List
+/** N√≥ para compor a lista de tokens do tipo T_ID */
+typedef struct tokenNoh
 {
 	token* tk;
 	struct tokenNoh* tk_prox;
-}token2List;
+}tokenNoh;
 
-static token2List* tk2_list = NULL;
+/** Refer√™ncia para o primeiro elemento da lista de tokens do tipo T_ID */
+static tokenNoh* tk2_list = NULL;
 
+/** Vari√°vel que mant√©m o id para o pr√≥ximo T_ID que ser√° inserido na lista de tokens do tipo T_ID */
 static int tk2_count = 0;
 
-/** Incrementa  tk_num */
+/** Retorna uma inst√¢ncia de token */
+token* factoryToken();
+
+/** Incrementa  tk2_count */
 int incTk2Count();
 
 /** Adiciona o novo id na lista de token identificadores */
 void addIdToken(token* pToken);
 
-/** Retorna uma inst‚ncia de token */
-token* factoryToken();
+/** Imprime a lista de tokens com tokens secund√°rios */
+void printTokenList();
 
 /** Imprime o Token */
 void printToken(token* pToken);
 
-/** Busca um token baseado em seu id de token secund·rio na lista token2List */
+/** Busca um token baseado em seu id de token secund√°rio na lista token2List */
 token* getToken(int pId);
 
-/** FunÁ„o que retorna os tokens identificados nos dados fornecidos */
+/** Fun√ß√£o que retorna os tokens identificados nos dados fornecidos */
 token* nextToken();
 
-/** Verifica se o char È um digito */
+/** Verifica se o char √© um digito */
 int isDigit(char pChar);
 
-/** Verifica se o char È um caractere */
+/** Verifica se o char √© um caractere */
 int isAlpha(char pChar);
 
-/** Verifica se o char È um underline */
+/** Verifica se o char √© um underline */
 int isUnderline(char pChar);
 
-/** Verifica se o char È um separador "espaÁo" ou "tab" */
+/** Verifica se o char √© um separador "espa√ßo" ou "tab" */
 int isSeparator(char pChar);
 
-/** Verifica se ochar È um operador + - * / */
+/** Verifica se o char √© um operador + - * / */
 int isOperator(char pChar);
 
-/** Verifica se o char È uma marcaÁ„o de fim de arquivo */
+/** Verifica se o char √© um marcador de fim de arquivo */
 int isEOF(char pChar);
 
-/** Verifica se o token È uma palavra reservada */
+/** Verifica se o token √© uma palavra reservada */
 void classifyToken(token* pToken);
 
-/** Verifica se o token È um n˙mero int const ou real const */
+/** Verifica se o token √© um int const ou real const */
 token* isNumber();
 
 #endif /* TOKENS_H */

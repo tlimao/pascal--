@@ -69,7 +69,7 @@
 
 
 
-#include "bison_adaptee.h"
+#include "lexer.h"
 #include "scope_structure.h"
 
 extern int yylex(void);
@@ -100,6 +100,7 @@ extern int yyerror(char*);
 
 
 #include "type_check.h"
+#include "wml_codegen.h"
 
 
 
@@ -169,14 +170,15 @@ typedef union YYSTYPE
 {
 
 
-	char  tk_name[32];
-	int   tk_1;
-	int   tk_idx;
-	int   tk_int;
-	int   tk_bool;
-	float tk_real;
+	char   tk_name[32];
+	int    tk_1;
+	int    tk_id;
+	int    tk_int;
+	int    tk_bool;
+	float  tk_real;
 	struct symbol* record;
 	struct expression expr;
+	struct codeblock* code_fragment;
 
 
 
@@ -409,11 +411,11 @@ union yyalloc
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  51
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  47
+#define YYNNTS  45
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  89
+#define YYNRULES  87
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  142
+#define YYNSTATES  140
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
@@ -460,56 +462,56 @@ static const yytype_uint8 yyprhs[] =
 {
        0,     0,     3,    10,    11,    16,    17,    19,    20,    22,
       23,    26,    29,    31,    34,    39,    44,    49,    52,    54,
-      57,    60,    65,    66,    70,    72,    74,    76,    80,    84,
-      87,    88,    92,    95,    96,   100,   102,   103,   105,   107,
-     109,   111,   113,   117,   120,   121,   125,   128,   129,   133,
-     135,   140,   147,   152,   157,   158,   162,   165,   166,   169,
-     171,   173,   175,   177,   179,   181,   185,   188,   190,   192,
-     193,   197,   199,   201,   203,   206,   207,   211,   213,   215,
-     217,   219,   221,   223,   227,   230,   232,   234,   236,   238
+      57,    60,    65,    66,    70,    72,    74,    76,    80,    85,
+      86,    90,    93,    94,    98,   100,   101,   103,   105,   107,
+     109,   111,   115,   118,   119,   123,   126,   127,   131,   133,
+     140,   145,   150,   155,   156,   160,   164,   166,   168,   170,
+     172,   174,   176,   178,   182,   185,   187,   189,   190,   194,
+     196,   198,   200,   203,   204,   208,   210,   212,   214,   216,
+     218,   220,   224,   227,   229,   231,   233,   235
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
       52,     0,    -1,     7,     3,    35,    53,    54,    37,    -1,
-      -1,    55,    56,    57,    83,    -1,    -1,    58,    -1,    -1,
+      -1,    55,    56,    57,    82,    -1,    -1,    58,    -1,    -1,
       61,    -1,    -1,    67,    57,    -1,    41,    59,    -1,    60,
       -1,    60,    59,    -1,     3,    44,     4,    35,    -1,     3,
       44,     5,    35,    -1,     3,    44,     6,    35,    -1,    30,
       62,    -1,    63,    -1,    63,    62,    -1,    64,    35,    -1,
        3,    65,    34,    66,    -1,    -1,    36,     3,    65,    -1,
       31,    -1,    32,    -1,    33,    -1,    68,    54,    35,    -1,
-      69,    70,    35,    -1,     8,     3,    -1,    -1,    39,    71,
-      40,    -1,    73,    72,    -1,    -1,    35,    73,    72,    -1,
-      64,    -1,    -1,    76,    -1,    81,    -1,    82,    -1,    83,
-      -1,    75,    -1,    96,    16,    85,    -1,     3,    77,    -1,
-      -1,    39,    78,    40,    -1,    80,    79,    -1,    -1,    36,
-      80,    79,    -1,    85,    -1,    11,    85,    12,    74,    -1,
-      11,    85,    12,    74,    13,    74,    -1,    14,    85,    15,
-      74,    -1,     9,    74,    84,    10,    -1,    -1,    35,    74,
-      84,    -1,    88,    86,    -1,    -1,    87,    88,    -1,    46,
-      -1,    44,    -1,    48,    -1,    47,    -1,    45,    -1,    49,
-      -1,    89,    92,    90,    -1,    92,    90,    -1,    17,    -1,
-      18,    -1,    -1,    91,    92,    90,    -1,    17,    -1,    18,
-      -1,    27,    -1,    95,    93,    -1,    -1,    94,    95,    93,
-      -1,    19,    -1,    21,    -1,    22,    -1,    26,    -1,    20,
-      -1,    97,    -1,    39,    85,    40,    -1,    28,    95,    -1,
-       3,    -1,     4,    -1,     5,    -1,     6,    -1,    96,    -1
+       8,     3,    69,    35,    -1,    -1,    39,    70,    40,    -1,
+      72,    71,    -1,    -1,    35,    72,    71,    -1,    64,    -1,
+      -1,    75,    -1,    80,    -1,    81,    -1,    82,    -1,    74,
+      -1,    94,    16,    84,    -1,     3,    76,    -1,    -1,    39,
+      77,    40,    -1,    79,    78,    -1,    -1,    36,    79,    78,
+      -1,    84,    -1,    11,    84,    12,    73,    13,    73,    -1,
+      11,    84,    12,    73,    -1,    14,    84,    15,    73,    -1,
+       9,    73,    83,    10,    -1,    -1,    35,    73,    83,    -1,
+      86,    85,    86,    -1,    86,    -1,    46,    -1,    44,    -1,
+      48,    -1,    47,    -1,    45,    -1,    49,    -1,    87,    90,
+      88,    -1,    90,    88,    -1,    17,    -1,    18,    -1,    -1,
+      89,    90,    88,    -1,    17,    -1,    18,    -1,    27,    -1,
+      93,    91,    -1,    -1,    92,    93,    91,    -1,    19,    -1,
+      21,    -1,    22,    -1,    26,    -1,    20,    -1,    95,    -1,
+      39,    84,    40,    -1,    28,    93,    -1,     3,    -1,     4,
+      -1,     5,    -1,     6,    -1,    94,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    89,    89,    96,   101,   104,   105,   108,   109,   112,
-     113,   116,   119,   120,   123,   135,   147,   160,   163,   164,
-     167,   185,   212,   217,   241,   245,   249,   254,   260,   280,
-     294,   299,   308,   351,   362,   405,   410,   411,   412,   413,
-     414,   415,   418,   435,   485,   492,   501,   514,   521,   533,
-     536,   544,   553,   562,   565,   566,   569,   589,   593,   599,
-     600,   601,   602,   603,   604,   607,   625,   644,   645,   649,
-     653,   675,   679,   683,   688,   708,   712,   733,   734,   735,
-     736,   737,   740,   744,   748,   759,   770,   774,   778,   782
+       0,    92,    92,   101,   108,   114,   117,   123,   126,   132,
+     135,   140,   145,   149,   154,   170,   186,   204,   209,   213,
+     218,   238,   263,   268,   290,   291,   292,   294,   303,   332,
+     337,   346,   385,   392,   431,   437,   440,   444,   448,   452,
+     456,   461,   478,   529,   537,   547,   558,   564,   574,   579,
+     589,   600,   611,   617,   620,   625,   637,   642,   643,   644,
+     645,   646,   647,   650,   671,   692,   693,   697,   701,   722,
+     723,   724,   727,   749,   753,   777,   778,   779,   780,   781,
+     784,   788,   792,   805,   816,   821,   826,   831
 };
 #endif
 
@@ -533,17 +535,16 @@ static const char *const yytname[] =
   "constant_definition", "variable_definition_part",
   "plus_variable_definition", "variable_definition", "variable_group",
   "star_comma_id", "type", "procedure_definition", "procedure_block",
-  "init_procedure", "opt_brc_formal_parameter_list_brc",
-  "formal_parameter_list", "star_smc_parameter_definition",
-  "parameter_definition", "statement", "assignment_statement",
-  "procedure_statement", "opt_brc_actual_parameter_list_brc",
-  "actual_parameter_list", "star_comma_actual_parameter",
-  "actual_parameter", "if_statement", "while_statement",
-  "compound_statement", "star_comma_statement", "expression",
-  "opt_relational_operator_simple_expression", "relational_operator",
-  "simple_expression", "sign_operator", "star_adding_operator_term",
-  "adding_operator", "term", "star_multiplying_operator_factor",
-  "multiplying_operator", "factor", "variable_access", "constant", 0
+  "opt_brc_formal_parameter_list_brc", "formal_parameter_list",
+  "star_smc_parameter_definition", "parameter_definition", "statement",
+  "assignment_statement", "procedure_statement",
+  "opt_brc_actual_parameter_list_brc", "actual_parameter_list",
+  "star_comma_actual_parameter", "actual_parameter", "if_statement",
+  "while_statement", "compound_statement", "star_comma_statement",
+  "expression", "relational_operator", "simple_expression",
+  "sign_operator", "star_adding_operator_term", "adding_operator", "term",
+  "star_multiplying_operator_factor", "multiplying_operator", "factor",
+  "variable_access", "constant", 0
 };
 #endif
 
@@ -567,12 +568,12 @@ static const yytype_uint8 yyr1[] =
        0,    51,    52,    53,    54,    55,    55,    56,    56,    57,
       57,    58,    59,    59,    60,    60,    60,    61,    62,    62,
       63,    64,    65,    65,    66,    66,    66,    67,    68,    69,
-      70,    70,    71,    72,    72,    73,    74,    74,    74,    74,
-      74,    74,    75,    76,    77,    77,    78,    79,    79,    80,
-      81,    81,    82,    83,    84,    84,    85,    86,    86,    87,
-      87,    87,    87,    87,    87,    88,    88,    89,    89,    90,
-      90,    91,    91,    91,    92,    93,    93,    94,    94,    94,
-      94,    94,    95,    95,    95,    96,    97,    97,    97,    97
+      69,    70,    71,    71,    72,    73,    73,    73,    73,    73,
+      73,    74,    75,    76,    76,    77,    78,    78,    79,    80,
+      80,    81,    82,    83,    83,    84,    84,    85,    85,    85,
+      85,    85,    85,    86,    86,    87,    87,    88,    88,    89,
+      89,    89,    90,    91,    91,    92,    92,    92,    92,    92,
+      93,    93,    93,    94,    95,    95,    95,    95
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
@@ -580,13 +581,13 @@ static const yytype_uint8 yyr2[] =
 {
        0,     2,     6,     0,     4,     0,     1,     0,     1,     0,
        2,     2,     1,     2,     4,     4,     4,     2,     1,     2,
-       2,     4,     0,     3,     1,     1,     1,     3,     3,     2,
-       0,     3,     2,     0,     3,     1,     0,     1,     1,     1,
-       1,     1,     3,     2,     0,     3,     2,     0,     3,     1,
-       4,     6,     4,     4,     0,     3,     2,     0,     2,     1,
-       1,     1,     1,     1,     1,     3,     2,     1,     1,     0,
-       3,     1,     1,     1,     2,     0,     3,     1,     1,     1,
-       1,     1,     1,     3,     2,     1,     1,     1,     1,     1
+       2,     4,     0,     3,     1,     1,     1,     3,     4,     0,
+       3,     2,     0,     3,     1,     0,     1,     1,     1,     1,
+       1,     3,     2,     0,     3,     2,     0,     3,     1,     6,
+       4,     4,     4,     0,     3,     3,     1,     1,     1,     1,
+       1,     1,     1,     3,     2,     1,     1,     0,     3,     1,
+       1,     1,     2,     0,     3,     1,     1,     1,     1,     1,
+       1,     3,     2,     1,     1,     1,     1,     1
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -596,96 +597,94 @@ static const yytype_uint8 yydefact[] =
 {
        0,     0,     0,     0,     1,     3,     5,     0,     0,     7,
        6,     0,    11,    12,     2,     0,     9,     8,     0,    13,
-      22,    17,    18,     0,     0,     0,     9,     5,    30,     0,
-       0,     0,     0,     0,    19,    20,    29,    36,     4,    10,
-       0,     0,     0,    14,    15,    16,    22,     0,    44,     0,
-       0,    54,    41,    37,    38,    39,    40,     0,    27,    35,
-       0,    33,    28,    23,    24,    25,    26,    21,     0,    43,
-      85,    86,    87,    88,    67,    68,     0,     0,     0,    57,
-       0,    69,    75,    89,    82,     0,    36,     0,     0,    31,
-       0,    32,     0,    47,    49,    84,     0,    36,    60,    63,
-      59,    62,    61,    64,    56,     0,    69,    71,    72,    73,
-      66,     0,    77,    81,    78,    79,    80,    74,     0,    36,
-      54,    53,    42,    33,    45,     0,    46,    83,    50,    58,
-      65,    69,    75,    52,    55,    34,    47,    36,    70,    76,
-      48,    51
+      22,    17,    18,     0,     0,     0,     9,     5,     0,     0,
+       0,     0,     0,    19,    20,    29,    35,     4,    10,     0,
+      14,    15,    16,    22,     0,     0,     0,    43,     0,     0,
+      53,    40,    36,    37,    38,    39,     0,    27,    23,    24,
+      25,    26,    21,    34,     0,    32,    28,     0,    42,    83,
+      84,    85,    86,    65,    66,     0,     0,     0,    56,     0,
+      67,    73,    87,    80,     0,    35,     0,     0,    30,     0,
+      31,     0,    46,    48,    82,     0,    35,    58,    61,    57,
+      60,    59,    62,     0,    67,    69,    70,    71,    64,     0,
+      75,    79,    76,    77,    78,    72,     0,    35,    53,    52,
+      41,    32,    44,     0,    45,    81,    50,    55,    63,    67,
+      73,    51,    54,    33,    46,    35,    68,    74,    47,    49
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
       -1,     2,     6,     8,     9,    16,    25,    10,    12,    13,
-      17,    21,    22,    23,    33,    67,    26,    27,    28,    42,
-      60,    91,    61,    51,    52,    53,    69,    92,   126,    93,
-      54,    55,    56,    87,    94,   104,   105,    79,    80,   110,
-     111,    81,   117,   118,    82,    83,    84
+      17,    21,    22,    23,    32,    62,    26,    27,    46,    64,
+      90,    65,    50,    51,    52,    68,    91,   124,    92,    53,
+      54,    55,    86,    93,   103,    78,    79,   108,   109,    80,
+     115,   116,    81,    82,    83
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -96
+#define YYPACT_NINF -94
 static const yytype_int8 yypact[] =
 {
-       6,    16,    22,   -10,   -96,   -96,   -11,    30,    -2,     8,
-     -96,    -4,   -96,    30,   -96,    41,    39,   -96,    64,   -96,
-      12,   -96,    41,    23,    50,    65,    39,   -11,    20,    42,
-      43,    44,    72,    46,   -96,   -96,   -96,    15,   -96,   -96,
-      48,    41,    49,   -96,   -96,   -96,    12,    40,     7,     3,
-       3,    51,   -96,   -96,   -96,   -96,   -96,    60,   -96,   -96,
-      45,    52,   -96,   -96,   -96,   -96,   -96,   -96,     3,   -96,
-     -96,   -96,   -96,   -96,   -96,   -96,    11,     3,    69,    18,
-      11,    10,    35,   -96,   -96,    73,    15,    79,     3,   -96,
-      41,   -96,    53,    54,   -96,   -96,    55,    15,   -96,   -96,
-     -96,   -96,   -96,   -96,   -96,     3,    10,   -96,   -96,   -96,
-     -96,    11,   -96,   -96,   -96,   -96,   -96,   -96,    11,    15,
-      51,   -96,   -96,    52,   -96,     3,   -96,   -96,    78,   -96,
-     -96,    10,    35,   -96,   -96,   -96,    54,    15,   -96,   -96,
-     -96,   -96
+       6,    23,    28,    -6,   -94,   -94,    -7,    32,     8,    37,
+     -94,     4,   -94,    32,   -94,    65,    61,   -94,    18,   -94,
+      34,   -94,    65,    36,    69,    64,    61,    -7,    39,    40,
+      41,    74,    44,   -94,   -94,    43,    16,   -94,   -94,    45,
+     -94,   -94,   -94,    34,    25,    65,    48,     2,     3,     3,
+      49,   -94,   -94,   -94,   -94,   -94,    63,   -94,   -94,   -94,
+     -94,   -94,   -94,   -94,    46,    50,   -94,     3,   -94,   -94,
+     -94,   -94,   -94,   -94,   -94,    11,     3,    75,    17,    11,
+      20,    33,   -94,   -94,    73,    16,    79,     3,   -94,    65,
+     -94,    51,    54,   -94,   -94,    52,    16,   -94,   -94,   -94,
+     -94,   -94,   -94,     3,    20,   -94,   -94,   -94,   -94,    11,
+     -94,   -94,   -94,   -94,   -94,   -94,    11,    16,    49,   -94,
+     -94,    50,   -94,     3,   -94,   -94,    80,   -94,   -94,    20,
+      33,   -94,   -94,   -94,    54,    16,   -94,   -94,   -94,   -94
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -96,   -96,   -96,    67,   -96,   -96,    66,   -96,    83,   -96,
-     -96,    75,   -96,   -39,    56,   -96,   -96,   -96,   -96,   -96,
-     -96,   -25,     9,   -85,   -96,   -96,   -96,   -96,   -35,   -22,
-     -96,   -96,    80,   -16,   -45,   -96,   -96,     1,   -96,   -95,
-     -96,   -70,   -24,   -96,   -73,   -37,   -96
+     -94,   -94,   -94,    67,   -94,   -94,    70,   -94,    82,   -94,
+     -94,    76,   -94,   -43,    57,   -94,   -94,   -94,   -94,   -94,
+     -24,    12,   -84,   -94,   -94,   -94,   -94,   -32,   -20,   -94,
+     -94,    81,   -14,   -44,   -94,     5,   -94,   -93,   -94,   -69,
+     -25,   -94,   -72,   -36,   -94
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
    positive, shift that token.  If negative, reduce the rule which
    number is the opposite.  If zero, do what YYDEFACT says.
    If YYTABLE_NINF, syntax error.  */
-#define YYTABLE_NINF -86
+#define YYTABLE_NINF -84
 static const yytype_int16 yytable[] =
 {
-      57,   120,    59,    95,    78,    85,    70,    71,    72,    73,
-     106,   130,   128,     1,    70,    71,    72,    73,    48,     3,
-      74,    75,     4,   -85,    37,     5,    49,   107,   108,    50,
-       7,    76,    96,    11,   133,    14,   138,   109,    15,    76,
-      18,   131,    77,   122,    20,   132,    68,    24,    32,    57,
-      77,    59,   141,    36,   112,   113,   114,   115,    35,    41,
-      57,   116,    98,    99,   100,   101,   102,   103,    29,    30,
-      31,    64,    65,    66,    37,    46,    88,    43,    44,    45,
-      47,    97,    57,    58,    62,    89,    86,    90,   119,   121,
-     125,   137,    39,   124,    40,   127,    19,    34,   135,   123,
-      57,   140,    63,   136,   134,    38,   129,     0,   139
+      56,   118,    63,    94,    77,    84,    69,    70,    71,    72,
+     104,   128,   126,     1,    69,    70,    71,    72,   -83,    47,
+      73,    74,    28,    29,    30,    36,     3,    48,     4,     5,
+      49,    75,    95,   131,     7,    11,   136,   105,   106,    75,
+     129,    67,    76,   120,   130,    14,    63,   107,    18,    56,
+      76,   139,   110,   111,   112,   113,    59,    60,    61,   114,
+      56,    97,    98,    99,   100,   101,   102,    15,    20,    24,
+      31,    34,    35,    36,    40,    41,    42,    43,    44,    87,
+      57,    56,    45,    66,    85,    89,    88,    96,   117,   119,
+     123,   122,   125,   135,    39,    19,    38,   133,    33,    56,
+      58,   121,   138,   134,   132,   137,    37,     0,   127
 };
 
 static const yytype_int16 yycheck[] =
 {
-      37,    86,    41,    76,    49,    50,     3,     4,     5,     6,
-      80,   106,    97,     7,     3,     4,     5,     6,     3,     3,
-      17,    18,     0,    16,     9,    35,    11,    17,    18,    14,
-      41,    28,    77,     3,   119,    37,   131,    27,    30,    28,
-      44,   111,    39,    88,     3,   118,    39,     8,    36,    86,
-      39,    90,   137,     3,    19,    20,    21,    22,    35,    39,
-      97,    26,    44,    45,    46,    47,    48,    49,     4,     5,
-       6,    31,    32,    33,     9,     3,    16,    35,    35,    35,
-      34,    12,   119,    35,    35,    40,    35,    35,    15,    10,
-      36,    13,    26,    40,    27,    40,    13,    22,   123,    90,
-     137,   136,    46,   125,   120,    25,   105,    -1,   132
+      36,    85,    45,    75,    48,    49,     3,     4,     5,     6,
+      79,   104,    96,     7,     3,     4,     5,     6,    16,     3,
+      17,    18,     4,     5,     6,     9,     3,    11,     0,    35,
+      14,    28,    76,   117,    41,     3,   129,    17,    18,    28,
+     109,    39,    39,    87,   116,    37,    89,    27,    44,    85,
+      39,   135,    19,    20,    21,    22,    31,    32,    33,    26,
+      96,    44,    45,    46,    47,    48,    49,    30,     3,     8,
+      36,    35,     3,     9,    35,    35,    35,     3,    34,    16,
+      35,   117,    39,    35,    35,    35,    40,    12,    15,    10,
+      36,    40,    40,    13,    27,    13,    26,   121,    22,   135,
+      43,    89,   134,   123,   118,   130,    25,    -1,   103
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -694,19 +693,18 @@ static const yytype_uint8 yystos[] =
 {
        0,     7,    52,     3,     0,    35,    53,    41,    54,    55,
       58,     3,    59,    60,    37,    30,    56,    61,    44,    59,
-       3,    62,    63,    64,     8,    57,    67,    68,    69,     4,
-       5,     6,    36,    65,    62,    35,     3,     9,    83,    57,
-      54,    39,    70,    35,    35,    35,     3,    34,     3,    11,
-      14,    74,    75,    76,    81,    82,    83,    96,    35,    64,
-      71,    73,    35,    65,    31,    32,    33,    66,    39,    77,
-       3,     4,     5,     6,    17,    18,    28,    39,    85,    88,
-      89,    92,    95,    96,    97,    85,    35,    84,    16,    40,
-      35,    72,    78,    80,    85,    95,    85,    12,    44,    45,
-      46,    47,    48,    49,    86,    87,    92,    17,    18,    27,
-      90,    91,    19,    20,    21,    22,    26,    93,    94,    15,
-      74,    10,    85,    73,    40,    36,    79,    40,    74,    88,
-      90,    92,    95,    74,    84,    72,    80,    13,    90,    93,
-      79,    74
+       3,    62,    63,    64,     8,    57,    67,    68,     4,     5,
+       6,    36,    65,    62,    35,     3,     9,    82,    57,    54,
+      35,    35,    35,     3,    34,    39,    69,     3,    11,    14,
+      73,    74,    75,    80,    81,    82,    94,    35,    65,    31,
+      32,    33,    66,    64,    70,    72,    35,    39,    76,     3,
+       4,     5,     6,    17,    18,    28,    39,    84,    86,    87,
+      90,    93,    94,    95,    84,    35,    83,    16,    40,    35,
+      71,    77,    79,    84,    93,    84,    12,    44,    45,    46,
+      47,    48,    49,    85,    90,    17,    18,    27,    88,    89,
+      19,    20,    21,    22,    26,    91,    92,    15,    73,    10,
+      84,    72,    40,    36,    78,    40,    73,    86,    88,    90,
+      93,    73,    83,    71,    79,    13,    88,    91,    78,    73
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -1520,8 +1518,10 @@ yyreduce:
         case 2:
 
     {
-	printf("FIM\n");
-	//clearTypeTables();
+	codegen.build_program((yyvsp[(2) - (6)].tk_id), (yyvsp[(5) - (6)].code_fragment));
+	finalizeCodeFile();
+	clearTypeTables();
+	clearScope();
 ;}
     break;
 
@@ -1530,63 +1530,170 @@ yyreduce:
     { 
     createTypeTable();
     initSymTab();
+    initCodeFile();
+    initWmlCodeGen();
+;}
+    break;
+
+  case 4:
+
+    {
+	(yyval.code_fragment) = codegen.build_block_body((yyvsp[(1) - (4)].code_fragment), (yyvsp[(2) - (4)].code_fragment), (yyvsp[(3) - (4)].code_fragment), (yyvsp[(4) - (4)].code_fragment));
+;}
+    break;
+
+  case 5:
+
+    {
+	(yyval.code_fragment) = codeBlockFactory(0);
+;}
+    break;
+
+  case 6:
+
+    {
+	(yyval.code_fragment) = (yyvsp[(1) - (1)].code_fragment);
+;}
+    break;
+
+  case 7:
+
+    {
+	(yyval.code_fragment) = codeBlockFactory(0);
+;}
+    break;
+
+  case 8:
+
+    {
+	(yyval.code_fragment) = (yyvsp[(1) - (1)].code_fragment);
+;}
+    break;
+
+  case 9:
+
+    {
+	(yyval.code_fragment) = codeBlockFactory(0);
+;}
+    break;
+
+  case 10:
+
+    {
+	(yyval.code_fragment) = codeBlockCat((yyvsp[(1) - (2)].code_fragment), (yyvsp[(2) - (2)].code_fragment));
+;}
+    break;
+
+  case 11:
+
+    {
+	(yyval.code_fragment) = (yyvsp[(2) - (2)].code_fragment);
+;}
+    break;
+
+  case 12:
+
+    {
+	(yyval.code_fragment) = (yyvsp[(1) - (1)].code_fragment);
+;}
+    break;
+
+  case 13:
+
+    {
+	(yyval.code_fragment) = codeBlockCat((yyvsp[(1) - (2)].code_fragment), (yyvsp[(2) - (2)].code_fragment));
 ;}
     break;
 
   case 14:
 
+    {   
+	YYSTYPE c;
+	
+	c.tk_int = (yyvsp[(3) - (4)].tk_int);
+	
+	symbol* lSymbol = constDeclare((yyvsp[(1) - (4)].tk_id), c, T_INT_CONST);
+	
+    if ( lSymbol == NULL ) 
     {
-    YYSTYPE t;
-    
-    t.tk_int = (yyvsp[(3) - (4)].tk_int);
-    
-    if ( constDeclare((yyvsp[(1) - (4)].tk_idx), t, T_INT_CONST) == NULL ) 
-    {
-        printf("ERROR 1: Redefinition of symbol '%s' [Line %d]\n", getToken((yyvsp[(1) - (4)].tk_idx)), getLine());
+        printf("\nERROR : Redefinição do símbolo '%s' [Line %d]\n", getToken((yyvsp[(1) - (4)].tk_id)), getLine());
         YYERROR; 
     }
+    
+    (yyval.code_fragment) = codegen.constant_declare(lSymbol);
 ;}
     break;
 
   case 15:
 
+    {   
+	YYSTYPE c;
+	
+	c.tk_real = (yyvsp[(3) - (4)].tk_real);
+	
+	symbol* lSymbol = constDeclare((yyvsp[(1) - (4)].tk_id), c, T_REAL_CONST);
+	
+    if ( lSymbol == NULL )
     {
-    YYSTYPE t;
-    
-    t.tk_real = (yyvsp[(3) - (4)].tk_real);
-    
-    if ( constDeclare((yyvsp[(1) - (4)].tk_idx), t, T_REAL_CONST) == NULL ) 
-    {
-        printf("ERROR 2: Redefinition of symbol '%s' [Line %d]\n", getToken((yyvsp[(1) - (4)].tk_idx)), getLine());
+        printf("\nERROR : Redefinição do símbolo '%s' [Line %d]\n", getToken((yyvsp[(1) - (4)].tk_id)), getLine());
         YYERROR;  
     }
+    
+    (yyval.code_fragment) = codegen.constant_declare(lSymbol);
 ;}
     break;
 
   case 16:
 
+    {   
+	YYSTYPE c;
+	
+	c.tk_bool = (yyvsp[(3) - (4)].tk_bool);
+	
+	symbol* lSymbol = constDeclare((yyvsp[(1) - (4)].tk_id), c, T_BOOLEAN_CONST);
+	
+    if ( lSymbol == NULL ) 
     {
-    YYSTYPE t;
-    
-    t.tk_bool = (yyvsp[(3) - (4)].tk_bool);
-    
-    if ( constDeclare((yyvsp[(1) - (4)].tk_idx), t, T_BOOLEAN_CONST) == NULL ) 
-    {
-        printf("ERROR 3: Redefinition of symbol '%s' [Line %d]\n", getToken((yyvsp[(1) - (4)].tk_idx)), getLine());
+        printf("\nERROR : Redefinição do símbolo '%s' [Line %d]\n", getToken((yyvsp[(1) - (4)].tk_id)), getLine());
         YYERROR;  
     }
+    
+    (yyval.code_fragment) = codegen.constant_declare(lSymbol);
+;}
+    break;
+
+  case 17:
+
+    {
+	(yyval.code_fragment) = (yyvsp[(2) - (2)].code_fragment);
+;}
+    break;
+
+  case 18:
+
+    {
+	(yyval.code_fragment) = (yyvsp[(1) - (1)].code_fragment);
+;}
+    break;
+
+  case 19:
+
+    {
+	(yyval.code_fragment) = codeBlockCat((yyvsp[(1) - (2)].code_fragment), (yyvsp[(2) - (2)].code_fragment));
 ;}
     break;
 
   case 20:
 
     {
+    (yyval.code_fragment) = codegen.variable_declare((yyvsp[(1) - (2)].record)->param_list);
+    
 	symbol* lSymbol = (yyvsp[(1) - (2)].record)->param_list->parameter;
 	
 	while ( lSymbol != NULL )
 	{
 		lSymbol->spec = VAR;
-	
+
 		insertLocal(lSymbol);
 		
 		lSymbol = lSymbol->next_symbol;
@@ -1603,24 +1710,22 @@ yyreduce:
     {
     (yyval.record) = (yyvsp[(2) - (4)].record);
     
-    if ( ( searchParam2((yyval.record)->param_list, (yyvsp[(1) - (4)].tk_idx)) == 0 ) && ( localSearch((yyvsp[(1) - (4)].tk_idx)) == 0 ) )
+    if ( ( searchParam2((yyval.record)->param_list, (yyvsp[(1) - (4)].tk_id)) == 0 ) )
     {
-        symbol* lSymbol = (symbol*) malloc(sizeof(symbol));
+        symbol* lSymbol = symbolFactory();
         
         lSymbol->spec = PARAM;
         
-        lSymbol->id = (yyvsp[(1) - (4)].tk_idx);
-        
-        lSymbol->param_list = NULL;
+        lSymbol->id = (yyvsp[(1) - (4)].tk_id);
         
         paramListPushBack((yyval.record)->param_list, lSymbol);
         
-        setParamType((yyval.record)->param_list, (yyvsp[(4) - (4)].tk_idx));
+        setParamType((yyval.record)->param_list, (yyvsp[(4) - (4)].tk_id));
     }
     
     else
     {
-        printf("ERROR 4: Multiple definition of symbol '%s' [Line %d]\n", getToken((yyvsp[(1) - (4)].tk_idx)), getLine());
+        printf("\nERROR : Múltipla definição do símbolo '%s' [Line %d]\n", getToken((yyvsp[(1) - (4)].tk_id)), getLine());
         YYERROR;
     }
 ;}
@@ -1629,7 +1734,7 @@ yyreduce:
   case 22:
 
     {
-    (yyval.record) = (symbol*) malloc(sizeof(symbol));
+    (yyval.record) = symbolFactory();
     
     (yyval.record)->param_list = paramListFactory();
 ;}
@@ -1640,22 +1745,20 @@ yyreduce:
     {
     (yyval.record) = (yyvsp[(3) - (3)].record);
     
-    if ( ( searchParam2((yyval.record)->param_list, (yyvsp[(2) - (3)].tk_idx)) == 0 ) && ( localSearch((yyvsp[(2) - (3)].tk_idx)) == 0 ) )
+    if ( ( searchParam2((yyval.record)->param_list, (yyvsp[(2) - (3)].tk_id)) == 0 ) )
     {
-        symbol* lSymbol = (symbol*) malloc(sizeof(symbol));
+        symbol* lSymbol = symbolFactory();
         
         lSymbol->spec = PARAM;
         
-        lSymbol->id = (yyvsp[(2) - (3)].tk_idx);
-        
-        lSymbol->param_list = NULL;
+        lSymbol->id = (yyvsp[(2) - (3)].tk_id);
         
         paramListPushBack((yyval.record)->param_list, lSymbol);
     }
     
     else
     {
-        printf("ERROR 5: Multiple definition of symbol '%s' [Line %d]\n", getToken((yyvsp[(2) - (3)].tk_idx)), getLine());
+        printf("\nERROR : Múltipla definição do símbolo '%s' [Line %d]\n", getToken((yyvsp[(2) - (3)].tk_id)), getLine());
         YYERROR;
     }
 ;}
@@ -1663,83 +1766,73 @@ yyreduce:
 
   case 24:
 
-    {
-    (yyval.tk_idx) = T_INTEGER; 
-;}
+    { (yyval.tk_id) = T_INTEGER; ;}
     break;
 
   case 25:
 
-    {
-    (yyval.tk_idx) = T_REAL; 
-;}
+    { (yyval.tk_id) = T_REAL;    ;}
     break;
 
   case 26:
 
-    {
-    (yyval.tk_idx) = T_BOOLEAN; 
-;}
+    { (yyval.tk_id) = T_BOOLEAN; ;}
     break;
 
   case 27:
 
     {
+	(yyvsp[(1) - (3)].record)->code_fragment = (yyvsp[(2) - (3)].code_fragment);
+	
+	(yyval.code_fragment) = codegen.build_procedure((yyvsp[(1) - (3)].record));
+	
     clearScope();
-    printSymTab();
 ;}
     break;
 
   case 28:
 
     {
-	(yyval.record) = globalSearch2((yyvsp[(1) - (3)].record)->id);
+	(yyval.record) = procDeclare((yyvsp[(2) - (4)].tk_id));
 	
-	symbol* lSymbol = (yyvsp[(2) - (3)].record)->param_list->parameter;
-
-	(yyval.record)->param_list = (yyvsp[(2) - (3)].record)->param_list;
+	if ( (yyval.record) == NULL )
+	{
+		printf("\nERROR : Múltipla definição do procedimento '%s' [Line %d]", getToken((yyvsp[(2) - (4)].tk_id))->tk_name, getLine());
+		YYERROR;
+	}
 	
-	(yyval.record)->param_list->length = (yyvsp[(2) - (3)].record)->param_list->length;
+	newScope();
+	
+	codegen.procedure_declare((yyval.record));
+	
+	(yyval.record)->param_list = (yyvsp[(3) - (4)].record)->param_list;
+	
+	globalSearch2((yyvsp[(2) - (4)].tk_id))->param_list = (yyvsp[(3) - (4)].record)->param_list;
+	
+	symbol* lSymbol = (yyval.record)->param_list->parameter;
 
 	while ( lSymbol != NULL )
 	{	
-		insertLocal(lSymbol);
+		insertParam(lSymbol);
 		
         lSymbol = lSymbol->next_symbol;
 	}
-	
-	free((yyvsp[(1) - (3)].record));
 ;}
     break;
 
   case 29:
 
     {
-	(yyval.record) = procDeclare((yyvsp[(2) - (2)].tk_idx));
-	
-	if ( (yyval.record) == NULL )
-	{
-		printf("Multiple redefinition of Procedure '%s' [Line %d]", getToken((yyvsp[(2) - (2)].tk_idx))->tk_name, getLine());
-		YYERROR;
-	}
-	
-	newScope();
+    (yyval.record) = symbolFactory();
+    
+	(yyval.record)->param_list = paramListFactory();
 ;}
     break;
 
   case 30:
 
     {
-    (yyval.record) = (symbol*) malloc(sizeof(symbol));
-    
-	(yyval.record)->param_list = paramListFactory();
-;}
-    break;
-
-  case 31:
-
-    {
-    (yyval.record) = (symbol*) malloc(sizeof(symbol));
+    (yyval.record) = symbolFactory();
     
 	(yyval.record)->param_list = (yyvsp[(2) - (3)].record)->param_list;
 	
@@ -1747,16 +1840,12 @@ yyreduce:
 ;}
     break;
 
-  case 32:
+  case 31:
 
     {
-    (yyval.record) = (symbol*) malloc(sizeof(symbol));
-    
-    (yyval.record)->id = -1;
+    (yyval.record) = symbolFactory();
     
     (yyval.record)->spec = PARAMLIST;
-    
-    (yyval.record)->type = 0;
     
     (yyvsp[(2) - (2)].record)->param_list = invertParamList((yyvsp[(2) - (2)].record)->param_list);
     
@@ -1764,13 +1853,13 @@ yyreduce:
 
 	int r = 1;
 	
-	while( lSymbol != NULL  )
+	while ( lSymbol != NULL  )
     {
     	if ( searchParam2((yyvsp[(1) - (2)].record)->param_list, lSymbol->id) != 0 )
     	{
     		r = 0;
     		
-    		printf("ERROR 6: Definition of multiple parameters with the same identifier '%s' [Line %d]\n", getToken(lSymbol->id), getLine());
+    		printf("\nERROR : Definição de parâmetros com mesmo identificador '%s' [Line %d]\n", getToken(lSymbol->id), getLine());
     		
     		break;
     	}
@@ -1791,31 +1880,23 @@ yyreduce:
 ;}
     break;
 
-  case 33:
+  case 32:
 
     {
-    (yyval.record) = (symbol*) malloc(sizeof(symbol));
-    
-    (yyval.record)->id = -1;
+    (yyval.record) = symbolFactory();
     
     (yyval.record)->spec = PARAMLIST;
-    
-    (yyval.record)->type = 0; 
     
     (yyval.record)->param_list = paramListFactory();
 ;}
     break;
 
-  case 34:
+  case 33:
 
     {
-    (yyval.record) = (symbol*) malloc(sizeof(symbol));
-    
-    (yyval.record)->id = -1;
+    (yyval.record) = symbolFactory();
     
     (yyval.record)->spec = PARAMLIST;
-    
-    (yyval.record)->type = 0;
     
     symbol* lSymbol = (yyvsp[(3) - (3)].record)->param_list->parameter;
 
@@ -1839,7 +1920,7 @@ yyreduce:
 	
 	if ( r == 0 )
 	{
-		printf("ERROR 7: Definition of multiple parameters with the same identifier [Line %d]\n", getLine());
+		printf("\nERROR : Definição de parâmetros com mesmo identificador [Line %d]\n", getLine());
 	}
 	
 	free((yyvsp[(3) - (3)].record)->param_list);
@@ -1851,44 +1932,82 @@ yyreduce:
 ;}
     break;
 
-  case 35:
+  case 34:
 
     {
 	(yyval.record) = (yyvsp[(1) - (1)].record);
 ;}
     break;
 
-  case 42:
+  case 35:
 
     {
-	symbol* lSymbol = globalSearch2((yyvsp[(1) - (3)].tk_idx));
-	
-	if ( ( lSymbol->spec != VAR ) && ( lSymbol->spec != PARAM ) )
-	{
-		printf("\nERROR: Assignment to non-lvalue '%s' [Line %d]\n", getToken((yyvsp[(1) - (3)].tk_idx)), getLine());
-        YYERROR;
-	}
-	
-	if ( checkCompatibility(lSymbol->type, (yyvsp[(3) - (3)].tk_idx)) == 0 )
-	{
-		printf("\nERROR: Cannot coerce expression into variable '%s' [Line %d]\n", getToken((yyvsp[(1) - (3)].tk_idx)), getLine());
-        YYERROR;
-	}
+	(yyval.code_fragment) = codeBlockFactory(0);
 ;}
     break;
 
-  case 43:
+  case 36:
 
     {
-	symbol* procSymbol = globalSearch2((yyvsp[(1) - (2)].tk_idx));
-	
-	printf("CALL: %s, nP: %d\n", getToken((yyvsp[(1) - (2)].tk_idx))->tk_name, procSymbol->param_list->length);
-	
-	printParamList(procSymbol->param_list);
+	(yyval.code_fragment) = (yyvsp[(1) - (1)].code_fragment);
+;}
+    break;
+
+  case 37:
+
+    {
+	(yyval.code_fragment) = (yyvsp[(1) - (1)].code_fragment);
+;}
+    break;
+
+  case 38:
+
+    {
+	(yyval.code_fragment) = (yyvsp[(1) - (1)].code_fragment);
+;}
+    break;
+
+  case 39:
+
+    {
+	(yyval.code_fragment) = (yyvsp[(1) - (1)].code_fragment);
+;}
+    break;
+
+  case 40:
+
+    {
+	(yyval.code_fragment) = (yyvsp[(1) - (1)].code_fragment);
+;}
+    break;
+
+  case 41:
+
+    {
+	if ( ( (yyvsp[(1) - (3)].record)->spec != VAR ) && ( (yyvsp[(1) - (3)].record)->spec != PARAM ) )
+	{
+		printf("\nERROR : Definição para um símbolo que não é variável ou parâmetro '%s' [Line %d]\n", getToken((yyvsp[(1) - (3)].record)->id), getLine());
+        YYERROR;
+	}
+
+	if ( checkCompatibility((yyvsp[(1) - (3)].record)->type, (yyvsp[(3) - (3)].expr).type) == 0 )
+	{
+		printf("\nERROR : Tipos imcompatíveis '%s' [Line %d]\n", getToken((yyvsp[(1) - (3)].record)->id), getLine());
+        YYERROR;
+	}
+
+	(yyval.code_fragment) = codegen.build_assignment((yyvsp[(1) - (3)].record), (yyvsp[(3) - (3)].expr));
+;}
+    break;
+
+  case 42:
+
+    {
+	symbol* procSymbol = globalSearch2((yyvsp[(1) - (2)].tk_id));
 	
     if ( procSymbol == NULL || procSymbol->spec != PROCEDURE )
     {
-        printf("\nERROR 8: Undefined procedure '%s' [Line %d]\n", getToken((yyvsp[(1) - (2)].tk_idx)), getLine());
+        printf("\nERROR : Procedimento não declarado '%s' [Line %d]\n", getToken((yyvsp[(1) - (2)].tk_id)), getLine());
         YYERROR;
     }
 
@@ -1896,22 +2015,24 @@ yyreduce:
     {
         if ( (yyvsp[(2) - (2)].record)->param_list->length != 0 )
         {
-            printf("\nERROR 9: Procedure '%s' has void signature, but is being passed parameters [Line %d]\n", getToken((yyvsp[(1) - (2)].tk_idx)), getLine());
+            printf("\nERROR : O Procedimento '%s' não tem parâmetros, mas está sendo passado com parâmetros [Line %d]\n", getToken((yyvsp[(1) - (2)].tk_id)), getLine());
             YYERROR;
         }
+        
+        (yyval.code_fragment) = codegen.call_procedure_void(procSymbol);
     }
     
     else
     {
         if ( (yyvsp[(2) - (2)].record)->param_list->length == 0 )
         {
-            printf("\nERROR 10: Procedure '%s' does not have void signature, but is being passed no parameters [Line %d]\n", getToken((yyvsp[(1) - (2)].tk_idx)), getLine());
+            printf("\nERROR : O Procedimento '%s' não tem parâmetros, mas está sendo passado com parâmetros [Line %d]\n", getToken((yyvsp[(1) - (2)].tk_id)), getLine());
             YYERROR;
         }
         
         if ( (yyvsp[(2) - (2)].record)->param_list->length != procSymbol->param_list->length )
         {
-            printf("\nERROR 11: Procedure call for '%s' is not passing the right amount of parameters, expected '%d', got '%d' [Line %d]\n", getToken((yyvsp[(1) - (2)].tk_idx)), procSymbol->param_list->length, (yyvsp[(2) - (2)].record)->param_list->length, getLine());
+            printf("\nERROR : A chamada ao procedimento '%s' não está com o número de parâmetros correto, são esperados '%d', mas foram passados '%d' [Line %d]\n", getToken((yyvsp[(1) - (2)].tk_id)), procSymbol->param_list->length, (yyvsp[(2) - (2)].record)->param_list->length, getLine());
             YYERROR;
         }
         
@@ -1920,135 +2041,252 @@ yyreduce:
         
     	if ( aux != NULL )
     	{
-    		//printf("ERROR 12: Cannot coerce expression into parameter '%s' [Line %d]\n", getToken(aux->id), getLine());
-    		printf("ERROR 12: Cannot coerce expression into %d%c parameter [Line %d]\n", diff, (char) 248, getLine());
+    		printf("\nERROR : O tipo da expressão não é compatível com o %d%c parâmetro do procedimento [Line %d]\n", diff, (char) 248, getLine());
     		YYERROR;
     	}
+
+    	mergeParamList(procSymbol->param_list, (yyvsp[(2) - (2)].record)->param_list);
+    	
+    	(yyval.code_fragment) = codegen.call_procedure(procSymbol, (yyvsp[(2) - (2)].record)->code_fragment);
     }
+;}
+    break;
+
+  case 43:
+
+    {
+    (yyval.record) = symbolFactory();
+    (yyval.record)->id = -1;
+    (yyval.record)->spec = PARAMLIST;
+    (yyval.record)->next_symbol = NULL;
+    (yyval.record)->param_list = paramListFactory();
+    (yyval.record)->code_fragment = codeBlockFactory(0);
 ;}
     break;
 
   case 44:
 
     {
-    (yyval.record) = (symbol*) malloc(sizeof(symbol));
+    (yyval.record) = symbolFactory();
     (yyval.record)->id = -1;
     (yyval.record)->spec = PARAMLIST;
     (yyval.record)->next_symbol = NULL;
-    (yyval.record)->param_list = paramListFactory();  
+    (yyval.record)->param_list = (yyvsp[(2) - (3)].record)->param_list;
+    (yyval.record)->code_fragment = (yyvsp[(2) - (3)].record)->code_fragment;
 ;}
     break;
 
   case 45:
 
     {
-    (yyval.record) = (symbol*) malloc(sizeof(symbol));
-    (yyval.record)->id = -1;
-    (yyval.record)->spec = PARAMLIST;
-    (yyval.record)->next_symbol = NULL;
-    (yyval.record)->param_list = (yyvsp[(2) - (3)].record)->param_list;
+    (yyval.record) = (yyvsp[(2) - (2)].record);
+    symbol* lSymbol = symbolFactory();
+    lSymbol->spec = PARAM;
+    lSymbol->type = (yyvsp[(1) - (2)].expr).type;
+    paramListPushBack((yyval.record)->param_list, lSymbol);
+    (yyval.record)->code_fragment = codeBlockCat((yyvsp[(1) - (2)].expr).code_fragment, (yyvsp[(2) - (2)].record)->code_fragment);
 ;}
     break;
 
   case 46:
 
     {
-    (yyval.record) = (yyvsp[(2) - (2)].record);
-    symbol* lSymbol = (symbol*) malloc(sizeof(symbol));
-    lSymbol->id = -1;
-    lSymbol->spec = PARAM;
-    lSymbol->type = (yyvsp[(1) - (2)].tk_idx);
-    lSymbol->next_symbol = NULL;
-    lSymbol->param_list = NULL;
-    paramListPushBack((yyval.record)->param_list, lSymbol);
+    (yyval.record) = symbolFactory();
+    (yyval.record)->spec = PARAMLIST;
+    (yyval.record)->param_list = paramListFactory();
+    (yyval.record)->code_fragment = codeBlockFactory(0);
 ;}
     break;
 
   case 47:
 
     {
-    (yyval.record) = (symbol*) malloc(sizeof(symbol));
-    (yyval.record)->id = -1;
-    (yyval.record)->spec = PARAMLIST;
-    (yyval.record)->next_symbol = NULL;
-    (yyval.record)->param_list = paramListFactory();
+    (yyval.record) = (yyvsp[(3) - (3)].record);
+    symbol* lSymbol = symbolFactory();
+    lSymbol->spec = PARAM;
+    lSymbol->type = (yyvsp[(2) - (3)].expr).type;
+    paramListPushBack((yyval.record)->param_list, lSymbol);
+    (yyval.record)->code_fragment = codeBlockCat((yyvsp[(2) - (3)].expr).code_fragment, (yyvsp[(3) - (3)].record)->code_fragment);
 ;}
     break;
 
   case 48:
 
     {
-    (yyval.record) = (yyvsp[(3) - (3)].record);
-    symbol* lSymbol = (symbol*) malloc(sizeof(symbol));
-    lSymbol->id = -1;
-    lSymbol->spec = PARAM;
-    lSymbol->type = (yyvsp[(2) - (3)].tk_idx);
-    lSymbol->next_symbol = NULL;
-    lSymbol->param_list = NULL;
-    paramListPushBack((yyval.record)->param_list, lSymbol);
+	(yyval.expr) = (yyvsp[(1) - (1)].expr);
 ;}
     break;
 
   case 49:
 
-    { (yyval.tk_idx) = (yyvsp[(1) - (1)].tk_idx); ;}
+    {
+	if ( (yyvsp[(2) - (6)].expr).type != T_BOOLEAN )
+	{
+		printf("\nERROR : A expressão não é do tipo booleano [Line %d]\n", getLine());
+		YYERROR;
+	}
+	
+	(yyval.code_fragment) = codegen.if_else_statement((yyvsp[(2) - (6)].expr), (yyvsp[(4) - (6)].code_fragment), (yyvsp[(6) - (6)].code_fragment));
+;}
     break;
 
   case 50:
 
     {
-	if ( (yyvsp[(2) - (4)].tk_idx) != T_BOOLEAN )
+	if ( (yyvsp[(2) - (4)].expr).type != T_BOOLEAN )
 	{
-		printf("ERROR: Expression does not have boolean type [Line %d]\n", getLine());
+		printf("\nERROR : A expressão não é do tipo booleano [Line %d]\n", getLine());
 		YYERROR;
 	}
+	
+	(yyval.code_fragment) = codegen.if_statement((yyvsp[(2) - (4)].expr), (yyvsp[(4) - (4)].code_fragment));
 ;}
     break;
 
   case 51:
 
     {
-	if ( (yyvsp[(2) - (6)].tk_idx) != T_BOOLEAN )
+	if ( (yyvsp[(2) - (4)].expr).type != T_BOOLEAN )
 	{
-		printf("ERROR: Expression does not have boolean type [Line %d]\n", getLine());
+		printf("\nERROR : A expressão não é do tipo booleano [Line %d]\n", getLine());
 		YYERROR;
 	}
+	
+	(yyval.code_fragment) = codegen.while_statement((yyvsp[(2) - (4)].expr), (yyvsp[(4) - (4)].code_fragment));
 ;}
     break;
 
   case 52:
 
     {
-	if ( (yyvsp[(2) - (4)].tk_idx) != T_BOOLEAN )
+	(yyval.code_fragment) = codeBlockCat((yyvsp[(2) - (4)].code_fragment), (yyvsp[(3) - (4)].code_fragment));
+;}
+    break;
+
+  case 53:
+
+    {
+	(yyval.code_fragment) = codeBlockFactory(0);
+;}
+    break;
+
+  case 54:
+
+    {
+	(yyval.code_fragment) = codeBlockCat((yyvsp[(2) - (3)].code_fragment), (yyvsp[(3) - (3)].code_fragment));
+;}
+    break;
+
+  case 55:
+
+    {
+	(yyval.expr).type = getExpressionReturnType((yyvsp[(1) - (3)].expr).type, (yyvsp[(3) - (3)].expr).type, (yyvsp[(2) - (3)].tk_id));
+	
+	if ( (yyval.expr).type == T_INVALID )
 	{
-		printf("ERROR: Expression does not have boolean type [Line %d]\n", getLine());
+		printf("\nERROR : Operandos inválidos [Line %d]\n", getLine());
 		YYERROR;
 	}
+	
+	(yyval.expr).code_fragment = codegen.build_relational_expression((yyvsp[(1) - (3)].expr), (yyvsp[(3) - (3)].expr), (yyvsp[(2) - (3)].tk_id));
 ;}
     break;
 
   case 56:
 
     {
-	if ( (yyvsp[(2) - (2)].expr).operation != T_INVALID )
-	{
-		(yyval.tk_idx) = getExpressionReturnType((yyvsp[(1) - (2)].tk_idx), (yyvsp[(2) - (2)].expr).type, (yyvsp[(2) - (2)].expr).operation);
-		
-		if ( (yyval.tk_idx) == T_INVALID )
-		{
-			printf("ERROR: Invalid operands in [Line %d]\n", getLine());
-			YYERROR;
-		}
-	}
-	
-	else
-	{
-		(yyval.tk_idx) = (yyvsp[(1) - (2)].tk_idx);
-	}
+	(yyval.expr) = (yyvsp[(1) - (1)].expr);
 ;}
     break;
 
   case 57:
+
+    { (yyval.tk_id) = T_LT;  ;}
+    break;
+
+  case 58:
+
+    { (yyval.tk_id) = T_EQ;  ;}
+    break;
+
+  case 59:
+
+    { (yyval.tk_id) = T_GT;  ;}
+    break;
+
+  case 60:
+
+    { (yyval.tk_id) = T_LEQ; ;}
+    break;
+
+  case 61:
+
+    { (yyval.tk_id) = T_DIF; ;}
+    break;
+
+  case 62:
+
+    { (yyval.tk_id) = T_GEQ; ;}
+    break;
+
+  case 63:
+
+    {
+	if ( ( (yyvsp[(3) - (3)].expr).operation != T_INVALID ) && ( (yyvsp[(3) - (3)].expr).operation != T_INVALID ) )
+	{
+		(yyval.expr).type = getExpressionReturnType((yyvsp[(2) - (3)].expr).type, (yyvsp[(3) - (3)].expr).type, (yyvsp[(3) - (3)].expr).operation);
+		
+		if ( (yyval.expr).type == T_INVALID )
+		{
+			printf("\nERROR : Operandos inválidos [Line %d]\n", getLine());
+			YYERROR;
+		}
+		
+		(yyval.expr).code_fragment = codegen.build_sign_expression((yyvsp[(2) - (3)].expr), (yyvsp[(3) - (3)].expr), (yyvsp[(1) - (3)].tk_id));
+	}
+	
+	else
+	{
+		(yyval.expr).type = (yyvsp[(2) - (3)].expr).type;
+		(yyval.expr).code_fragment = codegen.build_single_sign_expression((yyvsp[(2) - (3)].expr), (yyvsp[(1) - (3)].tk_id));
+	}
+;}
+    break;
+
+  case 64:
+
+    {
+	if ( ( (yyvsp[(2) - (2)].expr).operation != T_INVALID ) && ( (yyvsp[(2) - (2)].expr).operation != T_INVALID ) )
+	{
+		(yyval.expr).type = getExpressionReturnType((yyvsp[(1) - (2)].expr).type, (yyvsp[(2) - (2)].expr).type, (yyvsp[(2) - (2)].expr).operation);
+		
+		if ( (yyval.expr).type == T_INVALID )
+		{
+			printf("\nERROR : Operandos inválidos [Line %d]\n", getLine());
+			YYERROR;
+		}
+		
+		(yyval.expr).code_fragment = codegen.build_expression((yyvsp[(1) - (2)].expr), (yyvsp[(2) - (2)].expr));
+	}
+	
+	else
+	{
+		(yyval.expr) = (yyvsp[(1) - (2)].expr);
+	}
+;}
+    break;
+
+  case 65:
+
+    { (yyval.tk_id) = T_PLUS;  ;}
+    break;
+
+  case 66:
+
+    { (yyval.tk_id) = T_MINUS; ;}
+    break;
+
+  case 67:
 
     {
 	(yyval.expr).operation = T_INVALID;
@@ -2056,161 +2294,68 @@ yyreduce:
 ;}
     break;
 
-  case 58:
-
-    {
-	(yyval.expr).operation = (yyvsp[(1) - (2)].tk_idx);
-	(yyval.expr).type = (yyvsp[(2) - (2)].tk_idx);
-;}
-    break;
-
-  case 59:
-
-    { (yyval.tk_idx) = T_LT;  ;}
-    break;
-
-  case 60:
-
-    { (yyval.tk_idx) = T_EQ;  ;}
-    break;
-
-  case 61:
-
-    { (yyval.tk_idx) = T_GT;  ;}
-    break;
-
-  case 62:
-
-    { (yyval.tk_idx) = T_LEQ; ;}
-    break;
-
-  case 63:
-
-    { (yyval.tk_idx) = T_DIF; ;}
-    break;
-
-  case 64:
-
-    { (yyval.tk_idx) = T_GEQ; ;}
-    break;
-
-  case 65:
+  case 68:
 
     {
 	if ( ( (yyvsp[(3) - (3)].expr).operation != T_INVALID ) && ( (yyvsp[(3) - (3)].expr).type != T_INVALID ) )
 	{
-		(yyval.tk_idx) = getExpressionReturnType((yyvsp[(2) - (3)].tk_idx), (yyvsp[(3) - (3)].expr).type, (yyvsp[(3) - (3)].expr).operation);
+		(yyval.expr).operation = (yyvsp[(1) - (3)].tk_id);
+		(yyval.expr).type = getExpressionReturnType((yyvsp[(2) - (3)].expr).type, (yyvsp[(3) - (3)].expr).type, (yyvsp[(3) - (3)].expr).operation);
 		
-		if ( (yyval.tk_idx) == T_INVALID )
+		if ( (yyval.expr).type == T_INVALID )
 		{
-			printf("ERROR: Invalid operands in [Line %d]\n", getLine());
+			printf("\nERROR : Operandos inválidos [Line %d]\n", getLine());
 			YYERROR;
 		}
 	}
 	
 	else
 	{
-		(yyval.tk_idx) = (yyvsp[(2) - (3)].tk_idx);
-	}
-;}
-    break;
-
-  case 66:
-
-    {
-	if ( ( (yyvsp[(2) - (2)].expr).operation != T_INVALID ) && ( (yyvsp[(2) - (2)].expr).type != T_INVALID ) )
-	{
-		(yyval.tk_idx) = getExpressionReturnType((yyvsp[(1) - (2)].tk_idx), (yyvsp[(2) - (2)].expr).type, (yyvsp[(2) - (2)].expr).operation);
-		
-		if ( (yyval.tk_idx) == T_INVALID )
-		{
-			printf("ERROR: Invalid operands in [Line %d]\n", getLine());
-			YYERROR;
-		}
-	}
-	
-	else
-	{
-		(yyval.tk_idx) = (yyvsp[(1) - (2)].tk_idx);
+		(yyval.expr) = (yyvsp[(2) - (3)].expr);
+		(yyval.expr).operation = (yyvsp[(1) - (3)].tk_id);
 	}
 ;}
     break;
 
   case 69:
 
-    {
-	(yyval.expr).operation = T_INVALID;
-	(yyval.expr).type = T_INVALID;
-;}
+    { (yyval.tk_id) = T_PLUS;  ;}
     break;
 
   case 70:
 
-    {
-	(yyval.expr).operation = (yyvsp[(1) - (3)].tk_idx);
-	
-	if ( ( (yyvsp[(3) - (3)].expr).operation != T_INVALID ) && ( (yyvsp[(3) - (3)].expr).type != T_INVALID ) )
-	{
-		(yyval.expr).type = getExpressionReturnType((yyvsp[(2) - (3)].tk_idx), (yyvsp[(3) - (3)].expr).type, (yyvsp[(3) - (3)].expr).operation);
-		
-		if ( (yyval.expr).type == T_INVALID )
-		{
-			printf("ERROR: Invalid operands in [Line %d]\n", getLine());
-			YYERROR;
-		}
-	}
-	
-	else
-	{
-		(yyval.expr).operation = (yyvsp[(1) - (3)].tk_idx);
-		(yyval.expr).type = (yyvsp[(2) - (3)].tk_idx);
-	}
-;}
+    { (yyval.tk_id) = T_MINUS; ;}
     break;
 
   case 71:
 
-    {
-	(yyval.tk_idx) = T_PLUS;
-;}
+    { (yyval.tk_id) = T_OR;    ;}
     break;
 
   case 72:
 
     {
-	(yyval.tk_idx) = T_MINUS;
-;}
-    break;
-
-  case 73:
-
-    {
-	(yyval.tk_idx) = T_OR;
-;}
-    break;
-
-  case 74:
-
-    {
 	if ( ( (yyvsp[(2) - (2)].expr).operation != T_INVALID ) && ( (yyvsp[(2) - (2)].expr).type != T_INVALID ) )
 	{
-		(yyval.tk_idx) = getExpressionReturnType((yyvsp[(1) - (2)].tk_idx), (yyvsp[(2) - (2)].expr).type, (yyvsp[(2) - (2)].expr).operation);
+		(yyval.expr).type = getExpressionReturnType((yyvsp[(1) - (2)].expr).type, (yyvsp[(2) - (2)].expr).type, (yyvsp[(2) - (2)].expr).operation);
 		
-		if ( (yyval.tk_idx) == T_INVALID )
+		if ( (yyval.expr).type == T_INVALID )
 		{
-			printf("ERROR: Invalid operands in [Line %d]\n", getLine());
+			printf("\nERROR : Operandos inválidos [Line %d]\n", getLine());
 			YYERROR;
 		}
+		
+		(yyval.expr).code_fragment = codegen.build_expression((yyvsp[(1) - (2)].expr), (yyvsp[(2) - (2)].expr));
 	}
 	
 	else
 	{
-		(yyval.tk_idx) = (yyvsp[(1) - (2)].tk_idx);
+		(yyval.expr) = (yyvsp[(1) - (2)].expr);
 	}
 ;}
     break;
 
-  case 75:
+  case 73:
 
     {		
 	(yyval.expr).operation = T_INVALID;
@@ -2218,121 +2363,129 @@ yyreduce:
 ;}
     break;
 
-  case 76:
+  case 74:
 
     {
-	(yyval.expr).operation = (yyvsp[(1) - (3)].tk_idx);
+	(yyval.expr).operation = (yyvsp[(1) - (3)].tk_id);
 	
 	if ( ( (yyvsp[(3) - (3)].expr).operation != T_INVALID ) && ( (yyvsp[(3) - (3)].expr).type != T_INVALID ) )
 	{
-		(yyval.expr).type = getExpressionReturnType((yyvsp[(2) - (3)].tk_idx), (yyvsp[(3) - (3)].expr).type, (yyvsp[(3) - (3)].expr).operation);
+		(yyval.expr).type = getExpressionReturnType((yyvsp[(2) - (3)].expr).type, (yyvsp[(3) - (3)].expr).type, (yyvsp[(3) - (3)].expr).operation);
 		
 		if ( (yyval.expr).type == T_INVALID )
 		{
-			printf("ERROR: Invalid operands in [Line %d]\n", getLine());
+			printf("\nERROR : Operandos inválidos em [Line %d]\n", getLine());
 			YYERROR;
 		}
+		
+		(yyval.expr).code_fragment = codegen.build_expression((yyvsp[(2) - (3)].expr), (yyvsp[(3) - (3)].expr));
 	}
 	
 	else
 	{
-		(yyval.expr).type = (yyvsp[(2) - (3)].tk_idx);
+		(yyval.expr) = (yyvsp[(2) - (3)].expr);
+		(yyval.expr).operation = (yyvsp[(1) - (3)].tk_id);
 	}
 ;}
     break;
 
+  case 75:
+
+    { (yyval.tk_id) = T_TIMES;  ;}
+    break;
+
+  case 76:
+
+    { (yyval.tk_id) = T_DIV;    ;}
+    break;
+
   case 77:
 
-    { (yyval.tk_idx) = T_TIMES;  ;}
+    { (yyval.tk_id) = T_MOD;    ;}
     break;
 
   case 78:
 
-    { (yyval.tk_idx) = T_DIV;    ;}
+    { (yyval.tk_id) = T_AND;    ;}
     break;
 
   case 79:
 
-    { (yyval.tk_idx) = T_MOD;    ;}
+    { (yyval.tk_id) = T_DIVIDE; ;}
     break;
 
   case 80:
 
-    { (yyval.tk_idx) = T_AND;    ;}
+    {
+	(yyval.expr) = (yyvsp[(1) - (1)].expr);
+;}
     break;
 
   case 81:
 
-    { (yyval.tk_idx) = T_DIVIDE; ;}
+    {
+	(yyval.expr) = (yyvsp[(2) - (3)].expr);
+;}
     break;
 
   case 82:
 
     {
-	(yyval.tk_idx) = (yyvsp[(1) - (1)].tk_idx);
+	(yyval.expr).type = getExpressionReturnType(T_INVALID, (yyvsp[(2) - (2)].expr).type , T_NOT);
+
+	if ( (yyval.expr).type == T_INVALID )
+	{
+		printf("\nERROR : Operação inválida [Line %d]\n", getLine());
+		YYERROR;
+	}
+	
+	(yyval.expr).code_fragment = codegen.build_not_expression((yyvsp[(2) - (2)].expr));
 ;}
     break;
 
   case 83:
 
     {
-	(yyval.tk_idx) = (yyvsp[(2) - (3)].tk_idx);
+	(yyval.record) = globalSearch2((yyvsp[(1) - (1)].tk_id));
+	
+    if ( (yyval.record) == NULL )
+    {
+        printf("\nERROR : Uso de variável não declarada '%s', [Line %d] ", getToken((yyvsp[(1) - (1)].tk_id)), getLine());
+        YYERROR;
+    }
 ;}
     break;
 
   case 84:
 
     {
-	(yyval.tk_idx) = getExpressionReturnType(T_INVALID, (yyvsp[(2) - (2)].tk_idx) , T_NOT);
-
-	if ( (yyval.tk_idx) == T_INVALID )
-	{
-		printf("ERROR 34: Invalid Operation in [Line %d]\n", getLine());
-		YYERROR;
-	}
+	(yyval.expr).type = T_INTEGER;
+	(yyval.expr).code_fragment = codegen.use_int_const((yyvsp[(1) - (1)].tk_int));
 ;}
     break;
 
   case 85:
 
     {
-	(yyval.tk_idx) = (yyvsp[(1) - (1)].tk_idx); 
-	
-    if ( globalSearch((yyvsp[(1) - (1)].tk_idx)) == 0 )
-    {
-        printf("\nERROR 12: Use of undeclared identifier '%s', [Line %d] ", getToken((yyvsp[(1) - (1)].tk_idx)), getLine());
-        YYERROR;
-    }
+	(yyval.expr).type = T_REAL;
+	(yyval.expr).code_fragment = codegen.use_real_const((yyvsp[(1) - (1)].tk_real));
 ;}
     break;
 
   case 86:
 
     {
-	(yyval.tk_idx) = T_INTEGER;
+	(yyval.expr).type = T_BOOLEAN;
+	(yyval.expr).code_fragment = codegen.use_boolean_const((yyvsp[(1) - (1)].tk_bool));
 ;}
     break;
 
   case 87:
 
     {
-	(yyval.tk_idx) = T_REAL;
-;}
-    break;
-
-  case 88:
-
-    {
-	(yyval.tk_idx) = T_BOOLEAN;
-;}
-    break;
-
-  case 89:
-
-    {
-	symbol* lSymbol = globalSearch2((yyvsp[(1) - (1)].tk_idx));
+	(yyval.expr).type = (yyvsp[(1) - (1)].record)->type;
 	
-	(yyval.tk_idx) = lSymbol->type;
+	(yyval.expr).code_fragment = codegen.get_variable_access((yyvsp[(1) - (1)].record));
 ;}
     break;
 

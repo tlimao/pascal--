@@ -4,13 +4,15 @@
  *  Created on: 06/09/2013
  *      Author: Thiago
  */
-#include "bison_adaptee.h"
+#include "lexer.h"
 
-/** FunÁ„o que ir· chamar a nextToken */
+/** Fun√ß√£o que ir√° chamar a nextToken */
 int yylex(void)
 {
 	if( yyBuffer->chars == NULL )
+	{
 		return T_INVALID;
+	}
 
 	token* lToken = nextToken();
 
@@ -27,7 +29,7 @@ int yylex(void)
 
 		strcpy( yylval.tk_name, lToken->tk_name );
 		yylval.tk_1 = lToken->tk_1;
-		yylval.tk_idx = lToken->tk_idx;
+		yylval.tk_id = lToken->tk_id;
 	}
 
 	// Token Int Const
@@ -76,10 +78,10 @@ int yylex(void)
 }
 
 
-/** FunÁ„o que imprime a linha onde ocorreu o erro */
+/** Fun√ß√£o que imprime a linha onde ocorreu o erro */
 int yyerror(char* a)
 {
-	printf("Erro na linha %i\n", getLine());
+	printf("Erro sint√°tico na linha %i\n", getLine());
 	return 0;
 }
 

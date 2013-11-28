@@ -6,17 +6,16 @@
  */
 #include "type_check.h"
 
-#include "parser_bison.tab.h"
+#include "gramatica.tab.h"
 
-/** Cria a tabela com todas as opera��es e suas possibilidades de opera��es
-  * Opera��es: + - * / mod div not and or = <> < <= > >=
+/** Cria a tabela com todas as operações e suas possibilidades de operações
+  * Operações: + - * / mod div not and or = <> < <= > >=
   */
 void createTypeTable()
 {
 	int i, j, k;
 
 	// Hash de Operadores
-
 	hashOperators = (int*) malloc(15*sizeof(int));
 
 	for ( i = 0 ; i < 15 ; i++ )
@@ -41,7 +40,6 @@ void createTypeTable()
 	hashOperators[14][0] = T_DIF    ; hashOperators[14][1] = DIFF;
 
 	// Hash de tipos
-
 	hashTypes= (int*) malloc(3*sizeof(int));
 
 	for ( i = 0 ; i < 3 ; i++ )
@@ -54,7 +52,6 @@ void createTypeTable()
 	hashTypes[2][0]  = T_BOOLEAN ; hashTypes[2][1]  = BOOLEAN;
 
 	// Iniciando a tabela
-
 	typeTableCheck = (int**) malloc(15*sizeof(int));
 
 	for ( i = 0 ; i < 15 ; i++ )
@@ -72,6 +69,7 @@ void createTypeTable()
 		}
 	}
 
+	/** Tabela de compatibilidade entre tipos */
 	typeCompatibleTable = (int*) malloc(3*sizeof(int));
 
 	for ( i = 0 ; i < 3 ; i++ )
@@ -80,10 +78,10 @@ void createTypeTable()
 	}
 
 	typeCompatibleTable[INTEGER][INTEGER] = 1;
-	typeCompatibleTable[INTEGER][REAL] = 1;
+	typeCompatibleTable[INTEGER][REAL] = 0;
 	typeCompatibleTable[INTEGER][BOOLEAN] = 0;
 
-	typeCompatibleTable[REAL][INTEGER] = 1;
+	typeCompatibleTable[REAL][INTEGER] = 0;
 	typeCompatibleTable[REAL][REAL] = 1;
 	typeCompatibleTable[REAL][BOOLEAN] = 0;
 
@@ -91,7 +89,7 @@ void createTypeTable()
 	typeCompatibleTable[BOOLEAN][REAL] = 0;
 	typeCompatibleTable[BOOLEAN][BOOLEAN] = 1;
 
-	// Definindo compatibilidade entre tipos para cada opera��o HARD MODE
+	// Definindo compatibilidade entre tipos para cada operação HARD MODE
 
 	// +
 	typeTableCheck[PLUS][BOOLEAN][BOOLEAN] = T_INVALID;
@@ -171,10 +169,10 @@ void createTypeTable()
 	typeTableCheck[MOD][REAL][INTEGER] = T_REAL;
 	typeTableCheck[MOD][REAL][REAL]    = T_REAL;
 
-	/* NOT - ATEN��O !!!! com o not n�o faz sentido dois operandos,
-	 * assim, a tabela para o not na dimens�o de BOOLEAN ( j = 0), �
-	 * Inv�lida (T_INVALID) todas o elementos da matriz, contudo a
-	 * linha da matriz j = BOOLEAN (0) representa a opera��o not
+	/* NOT - ATENÇÃO !!!! com o not não faz sentido dois operandos,
+	 * assim, a tabela para o not na dimensão de BOOLEAN (j = 0), é
+	 * inválida (T_INVALID) todas o elementos da matriz, contudo a
+	 * linha da matriz j = BOOLEAN (0) representa a operação not
 	 * aplicada sobre cada tipo, por exemplo:
 	 *
 	 * not true : typeTableCheck[NOT][0][BOOLEAN] = T_BOOLEAN;
@@ -296,26 +294,9 @@ void createTypeTable()
 	typeTableCheck[DIFF][REAL][BOOLEAN] = T_INVALID;
 	typeTableCheck[DIFF][REAL][INTEGER] = T_BOOLEAN;
 	typeTableCheck[DIFF][REAL][REAL]    = T_BOOLEAN;
-
-	typeCompatibility = (int*) malloc(3*sizeof(int));
-
-	for ( i = 0 ; i < 3 ; i++ )
-	{
-		typeCompatibility[i] = (int) malloc(3*sizeof(int));
-	}
-
-	typeCompatibility[INTEGER][INTEGER] = 1;
-	typeCompatibility[INTEGER][REAL] = 1;
-	typeCompatibility[INTEGER][BOOLEAN] = 0;
-	typeCompatibility[REAL][INTEGER] = 1;
-	typeCompatibility[REAL][REAL] = 1;
-	typeCompatibility[REAL][BOOLEAN] = 0;
-	typeCompatibility[BOOLEAN][INTEGER] = 0;
-	typeCompatibility[BOOLEAN][REAL] = 0;
-	typeCompatibility[BOOLEAN][BOOLEAN] = 0;
 }
 
-/** Desaloca mem�ria das tabelas de checagem de tipo */
+/** Desaloca memória das tabelas de checagem de tipo */
 void clearTypeTables()
 {
 	int i, j;
@@ -346,23 +327,24 @@ void clearTypeTables()
 	}
 }
 
-/** Dados dois operandos de tipos pType1 e pType2 e, uma opera��o retorna, verificando na tabela relacional de
-  * Tipos - Opera��es o tipo do resultado obtido pela opera��o, caso poss�vel, ou retornando inv�lido caso n�o
-  * seja poss�vel.
+/** Dados dois operandos de tipos pType1 e pType2 e, uma operação retorna, verificando na tabela relacional de
+  * Tipos - Operações o tipo do resultado obtido pela operação, caso possível, ou retornando inválido caso não
+  * seja possível.
   *
   * <p> pType1 - tipo do operando 1
   * <p> pType2 - tipo do operando 2
-  * <p> pOperation - opera��o
+  * <p> pOperation - operação
   *
-  * <r> T_(INTEGER | REAL | BOOLEAN ) - tipo do reusltado da opera��o caso seja uma opera��o v�lida para os
+  * <r> T_(INTEGER | REAL | BOOLEAN ) - tipo do reusltado da operação caso seja uma operação válida para os
   * tipos de operandos pType1 e pType2 passados
-  * <r> T_INVALID - n�o seja uma opera��o v�lida
+  * <r> T_INVALID - não seja uma operação válida
  **/
 int getExpressionReturnType(int pType1, int pType2, int pOperation)
 {
 	return typeTableCheck[getOperation(pOperation)][getType(pType1)][getType(pType2)];
 }
 
+/** Verifica se os tipos passados como parâmetro são compatíveis */
 int checkCompatibility(int pType1, int pType2)
 {
 	return typeCompatibleTable[getType(pType1)][getType(pType2)];
@@ -370,7 +352,7 @@ int checkCompatibility(int pType1, int pType2)
 
 int getType(int pType)
 {
-	int i, g;
+	int i;
 
 	for ( i = 0 ; i < 3 ; i++ )
 	{
@@ -386,7 +368,7 @@ int getType(int pType)
 
 int getOperation(int pOperation)
 {
-	int i, g;
+	int i;
 
 	for ( i = 0 ; i < 15 ; i++ )
 	{
@@ -397,10 +379,4 @@ int getOperation(int pOperation)
 	}
 
 	return 0;
-}
-
-/** Verify if types are compatibles */
-int isCompatibility(int pType1, int pType2)
-{
-	return typeCompatibility[getType(pType1)][getType(pType2)];
 }

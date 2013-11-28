@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
-/** Buffer OO para armazenar cada linha da fonte de dados evitando carregar toda fonte de dados de uma só vez */
+/** Buffer para armazenar cada linha da fonte de dados evitando carregar toda fonte de dados de uma sÃ³ vez */
 typedef struct buffer
 {
     char* chars;
@@ -24,7 +24,7 @@ typedef struct buffer
 /** Buffer global utilizado em nosso compilador */
 buffer* yyBuffer;
 
-/** Devolve uma instância de buffer */
+/** Devolve uma instÃ¢ncia de buffer */
 void buildBuffer();
 
 /** informa a origem dos dados aquivo ou inputstream */
@@ -33,46 +33,46 @@ void setBufferSource(FILE* pSrc);
 /** Limpa o buffer */
 void clearBuffer();
 
-/** Imprime os Caracteres que estão no buffer */
+/** Imprime os Caracteres que estï¿½o no buffer */
 void printBuffer();
 
-/** Retorna o char para o qual o buffer está apontando atualmente */
+/** Retorna o char para o qual o buffer estï¿½ apontando atualmente */
 char getChar();
 
-/** Retorna o char para o qual o buffer está apontando atualmente e avança o ponteiro para o próximo char */
+/** Retorna o char para o qual o buffer estï¿½ apontando atualmente e avanï¿½a o ponteiro para o prÃ³ximo char */
 char nextChar();
 
-/** Retorna o próximo char do buffer */
+/** Retorna o prÃ³ximo char do buffer */
 char lookNextChar();
 
-/** Retorna o último char lido do buffer */
+/** Retorna o Ãºltimo char lido do buffer */
 char lookPreviewChar();
 
-/** Avança uma posição do buffer */
+/** AvanÃ§a uma posiÃ§Ã£o do buffer */
 void goFront();
 
-/** Retorna uma posição do buffer */
+/** Retorna uma posiÃ§Ã£o do buffer */
 void goBack();
 
-/** Verifica se ainda há algum char no buffer */
+/** Verifica se ainda hÃ¡ algum char no buffer */
 int hasNext();
 
-/** Calcula em que linha do arquivo o buufer está */
+/** Calcula em que linha do arquivo o buufer estï¿½ */
 int getLine();
 
-/** Retorna o próximo char do buffer */
+/** Retorna o prÃ³ximo char do buffer */
 char lookNextChar();
 
-/** Retorna o último char lido do buffer */
+/** Retorna o Ãºltimo char lido do buffer */
 char lookPreviewChar();
 
-/** Avança uma posição do buffer */
+/** Avanï¿½a uma posiÃ§Ã£o do buffer */
 void goFront();
 
-/** Retorna uma posição do buffer */
+/** Retorna uma posiÃ§Ã£o do buffer */
 void goBack();
 
-/** Verifica se ainda há algum char no buffer */
+/** Verifica se ainda hÃ¡ algum char no buffer */
 int hasNext();
 
 #endif

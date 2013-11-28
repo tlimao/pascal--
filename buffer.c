@@ -1,5 +1,5 @@
 /*
- * lexicalAnalyzer.c
+ * buffer.c
  *
  *  Created on: 14/08/2013
  *      Author: Thiago
@@ -7,7 +7,7 @@
 
 #include "buffer.h"
 
-/** Devolve ua referÍncia do buffer global do compilador */
+/** Devolve ua refer√™ncia do buffer global do compilador */
 void buildBuffer()
 {
 	yyBuffer = (buffer*) malloc(sizeof(buffer));
@@ -48,7 +48,7 @@ void clearBuffer()
     yyBuffer->size = 0;
 }
 
-/** Imprime os Caracteres que est„o no buffer */
+/** Imprime os Caracteres que est√£o no buffer */
 void printBuffer()
 {
 	int i;
@@ -57,7 +57,7 @@ void printBuffer()
 		printf("%c", yyBuffer->chars[i]);
 }
 
-/** Pula espaÁos e tabulaÁıes e quebras de linha atÈ a ocorrÍncia do primeiro caractere */
+/** Pula espaÔøΩos e tabula√ß√µes e quebras de linha at√© a ocorr√™ncia do primeiro caractere */
 void skipSeparators()
 {
 	char c = getChar();
@@ -69,13 +69,13 @@ void skipSeparators()
 	}
 }
 
-/** Retorna o char para o qual o buffer est· apontando atualmente */
+/** Retorna o char para o qual o buffer est√° apontando atualmente */
 char getChar()
 {
 	return yyBuffer->chars[yyBuffer->idx];
 }
 
-/** Retorna o char para o qual o buffer est· apontando atualmente e avanÁa o ponteiro para o prÛximo char */
+/** Retorna o char para o qual o buffer est√° apontando atualmente e avan√ßa o ponteiro para o pr√≥ximo char */
 char nextChar()
 {
 	char c = yyBuffer->chars[yyBuffer->idx];
@@ -86,37 +86,37 @@ char nextChar()
 	return c;
 }
 
-/** Retorna o prÛximo char do buffer */
+/** Retorna o pr√≥ximo char do buffer */
 char lookNextChar()
 {
 	return yyBuffer->chars[yyBuffer->idx];
 }
 
-/** Retorna o ˙ltimo char lido do buffer */
+/** Retorna o √∫ltimo char lido do buffer */
 char lookPreviewChar()
 {
 	return yyBuffer->chars[yyBuffer->idx - 1];
 }
 
-/** AvanÁa uma posiÁ„o do buffer */
+/** AvanÔøΩa uma posi√ß√£o do buffer */
 void goFront()
 {
 	yyBuffer->idx++;
 }
 
-/** Retorna uma posiÁ„o do buffer */
+/** Retorna uma posi√ß√£o do buffer */
 void goBack()
 {
 	yyBuffer->idx--;
 }
 
-/** Verifica se ainda h· algum char no buffer */
+/** Verifica se ainda h√° algum char no buffer */
 int hasNext()
 {
 	return ( yyBuffer->idx + 1 < yyBuffer->size ) ? 1 : 0;
 }
 
-/** Calcula em que linha do arquivo o buufer est· */
+/** Calcula em que linha do arquivo o buufer est√° */
 int getLine()
 {
 	int i, l = 1;

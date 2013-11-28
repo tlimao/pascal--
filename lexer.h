@@ -8,16 +8,12 @@
 #ifndef BISON_ADAPTEE_H
 #define BISON_ADAPTEE_H
 
-#include "parser_bison.tab.h"
 #include "tokens.h"
 
-extern int yytype;
-extern YYSTYPE yylval;
-
-/** FunÁ„o que ir· chamar a nextToken */
+/** Fun√ß√£o que ir√° chamar a nextToken */
 int yylex(void);
 
-/** FunÁ„o que imprime a linha onde ocorreu o erro */
+/** Fun√ß√£o que imprime a linha onde ocorreu o erro */
 int yyerror(char* a);
 
 #endif /* BISON_ADAPTEE_H */
